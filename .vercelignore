@@ -1,3 +1,5 @@
 build.py
-scripts
 README.md
+scripts/daily.sh
+scripts/invite.py
+scripts/bootstrap_admin.py
