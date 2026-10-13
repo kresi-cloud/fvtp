@@ -848,6 +848,7 @@ async function loadBriefek(){
     }
     DEADLINES=(BF.deadlines||[]).slice();
     ALERTS=(BF.alerts||[]).slice();
+    if(Array.isArray(BF.dossziek)){const ids=new Set(BF.dossziek.map(d=>d.id));const local=DOSSZIEK.filter(d=>!ids.has(d.id));DOSSZIEK.length=0;DOSSZIEK.push(...BF.dossziek,...local);}
     renderAll();
   }catch(e){/* marad a mintatartalom */}
 }
@@ -931,7 +932,8 @@ $("#bellBtn").addEventListener("click",()=>{
 });
 $("#searchBtn").addEventListener("click",()=>{openSl=null;openDosszie=null;show("dosszie");setTimeout(()=>{$("#slQ").focus();$("#slSec").scrollIntoView({behavior:"smooth",block:"start"});},50);});
 $("#fbBtn").addEventListener("click",()=>toast("Köszönjük – a visszajelzés a prototípusban még nem továbbítódik."));
-$("#dosszieForm").addEventListener("submit",e=>{e.preventDefault();const t=$("#dTema").value.trim();if(!t)return;DOSSZIEK.unshift({id:"d-"+Date.now(),kero:ROLES[role].name,date:TODAY.toISOString().slice(0,10),t,s:"kérés rögzítve · "+($("#dKor").value)+($("#dHatar").value?" · kész: "+fmtS($("#dHatar").value):""),st:"elokesz"});renderDosszie();e.target.reset();toast("Dosszié-kérés rögzítve (prototípus: csak ebben a böngészőben).");});
+$("#dosszieForm").addEventListener("submit",e=>{e.preventDefault();const t=$("#dTema").value.trim();if(!t)return;
+  fetch("/api/dosszie",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({t,dontes:$("#dDontes").value,kor:$("#dKor").value,hatar:$("#dHatar").value,storyline:openSl||""})}).then(r=>r.json()).then(j=>{if(j.ok)toast("Dosszié-kérés továbbítva (#"+j.issue+"), a következő frissítéskor készül.");else toast("A kérés helyben rögzítve, továbbítás nem sikerült: "+(j.error||""));}).catch(()=>toast("A kérés helyben rögzítve, továbbítás nem sikerült."));DOSSZIEK.unshift({id:"d-"+Date.now(),kero:ROLES[role].name,date:TODAY.toISOString().slice(0,10),t,s:"kérés rögzítve · "+($("#dKor").value)+($("#dHatar").value?" · kész: "+fmtS($("#dHatar").value):""),st:"elokesz"});renderDosszie();e.target.reset();toast("Dosszié-kérés rögzítve (prototípus: csak ebben a böngészőben).");});
 
 loadState();if(!subs)subs=defaultSubs(role);
 renderAll();loadBriefek();loadSl();
@@ -1004,4 +1006,4 @@ const h=location.hash.replace("#","");if(["kezdolap","briefek","hirek","hatarido
 
 
 
-<footer class="hv-foot wrap"><span>Napi frissítés · utolsó build: 2026-10-13 07:28 UTC</span><span>Fotók: Harta Viktor, Ruprech Judit (CC BY-SA 4.0), takacsja (CC BY-SA 2.5), Szajci (PD) – Wikimedia Commons</span></footer>
+<footer class="hv-foot wrap"><span>Napi frissítés · utolsó build: 2026-10-13 07:34 UTC</span><span>Fotók: Harta Viktor, Ruprech Judit (CC BY-SA 4.0), takacsja (CC BY-SA 2.5), Szajci (PD) – Wikimedia Commons</span></footer>

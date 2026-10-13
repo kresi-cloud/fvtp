@@ -45,6 +45,8 @@ vercel link          # új projekt, név: fvtp  → ha a név foglalt, a CLI sz�
 vercel env add CLERK_SECRET_KEY production            # sk_…
 vercel env add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY production   # pk_…
 vercel env add ADMIN_EMAILS production                # gergely.kresak@gmail.com
+vercel env add GITHUB_TOKEN production                # finomhangolt PAT: csak az fvtp repó, Issues: Read and write
+vercel env add GITHUB_REPO production                 # kresi-cloud/fvtp
 vercel deploy --prod
 ```
 A `fvtp.vercel.app` cím szabadságát csak a `vercel link` tudja ellenőrizni (a Vercel foglaltsága kívülről nem kérdezhető le).
@@ -61,6 +63,13 @@ A legegyszerűbb: GitHub-repó + Vercel Git-integráció (*Vercel → Add New �
 minden push automatikusan újratelepít. A napi feladat (ütemezett Claude-feladat vagy cron) a `scripts/daily.sh`-t futtatja:
 adatok frissítése (`tools/portal_update.py`), db-export (hírek, digestek), build, commit, push.
 Repo nélkül: `vercel deploy --prod` a build után (a Vercel-token `VERCEL_TOKEN` változóban).
+
+## Dosszié-kérés a honlapról
+A Dossziék oldal űrlapja a `/api/dosszie` végponton át **GitHub issue-t** nyit az fvtp repóban (`dosszie-keres` címkével, a kérő
+nevével, e-mailjével, a kért körrel és határidővel). Az ütemezett Claude-feladat (naponta 8–18 között kétóránként) a nyitott
+issue-kat feldolgozza: elkészíti a dossziét, a `portal_update.py dosszie` paranccsal beírja a `briefek.json`-ba, publikálja az
+artifactba és a honlapra (csengő → „Dossziék”), majd lezárja az issue-t. Tisztázó kérdés esetén az issue-ban kommentel, és a kérés
+„készül” marad. Az issue-ról e-mailt kapsz, így sürgős kérésnél kézzel is indíthatsz egy sessiont.
 
 ## Megjegyzések
 - A hírfigyelő a Vercelen nem az artifact adatbázisából, hanem a `public/data/hirek.json` + `digest.json` fájlokból olvas (a build exportálja).

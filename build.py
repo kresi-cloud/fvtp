@@ -34,6 +34,12 @@ def frontend_api(pk):
 FA = frontend_api(PK) if PK else ''
 
 html = open(a.src, encoding='utf-8').read()
+# az Artifact „read” által mentett példány egy burkoló első és utolsó sorral érkezik – ezeket levágjuk
+if not html.lstrip().startswith('<title>') and '\n<title>' in html:
+    lines = html.split('\n')
+    first = next(i for i, l in enumerate(lines) if l.startswith('<title>'))
+    last = max(i for i, l in enumerate(lines) if '</script>' in l)
+    html = '\n'.join(lines[first:last + 1]) + '\n'
 warn = []
 
 def rep(old, new, what, count=1):
@@ -91,6 +97,11 @@ rep('<section class="view" id="v-feliratkozas" hidden>', '''<section class="view
   </div><aside class="rail"><div class="card"><h3>Hogyan működik</h3><p style="color:var(--muted-fg);margin-top:8px">Csak meghívott e-mail-cím tud belépni (Google-fiókkal vagy e-mail kóddal). A meghívó 30 napig érvényes; visszavonás után a cím nem léphet be. Tag eltávolítása azonnali.</p></div></aside></div>
 </section>
 <section class="view" id="v-feliratkozas" hidden>''', 'admin-view')
+
+# 4c) Dosszié-kérés → /api/dosszie (GitHub issue), helyi „készül” sor marad
+rep('''$("#dosszieForm").addEventListener("submit",e=>{e.preventDefault();const t=$("#dTema").value.trim();if(!t)return;''',
+    '''$("#dosszieForm").addEventListener("submit",e=>{e.preventDefault();const t=$("#dTema").value.trim();if(!t)return;
+  fetch("/api/dosszie",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({t,dontes:$("#dDontes").value,kor:$("#dKor").value,hatar:$("#dHatar").value,storyline:openSl||""})}).then(r=>r.json()).then(j=>{if(j.ok)toast("Dosszié-kérés továbbítva (#"+j.issue+"), a következő frissítéskor készül.");else toast("A kérés helyben rögzítve, továbbítás nem sikerült: "+(j.error||""));}).catch(()=>toast("A kérés helyben rögzítve, továbbítás nem sikerült."));''', 'dosszie-post')
 
 # 5) adatbázis helyett statikus fájlok (hírfigyelő hírek + digestek)
 rep('if(!db){st.textContent="adatbázis nem elérhető ebben a nézetben";return;}',
