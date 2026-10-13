@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__ – Vezetői Tájékoztató Portál</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://api.fontshare.com"><link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap">
+<script>(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('fvtp-theme')||'dark');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+<style>
+:root{--bg:#090e14;--fg:#f4f4f7;--card:#10161f;--muted:#a1a1aa;--line:rgba(255,255,255,.1);--accent:#aa99ff;--primary:#6000ff;color-scheme:dark}
+:root[data-theme="light"]{--bg:#f8f8f8;--fg:#0b0b12;--card:#fff;--muted:#5b5b66;--line:rgba(10,10,30,.12);--accent:#4b2fb0;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Satoshi",ui-sans-serif,system-ui,sans-serif;font-size:16.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.top{position:sticky;top:0;z-index:5;backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 80%,transparent);border-bottom:1px solid var(--line)}
+.top div{max-width:860px;margin:0 auto;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.top a{color:var(--fg);text-decoration:none;font-weight:500}
+.top a:hover{color:var(--accent)}
+.top button{font:inherit;font-size:13px;color:var(--fg);background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:40px 20px 80px}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+h1{font-weight:400;font-size:clamp(30px,4.4vw,46px);line-height:1.1;letter-spacing:-.02em;margin:0 0 28px}
+h2{font-weight:500;font-size:26px;letter-spacing:-.01em;margin:48px 0 14px;padding-top:20px;border-top:1px solid var(--line)}
+h3{font-weight:700;font-size:18px;margin:32px 0 10px}
+p,li{max-width:70ch}
+a{color:var(--accent)}
+strong{font-weight:700}
+ul,ol{padding-left:22px}
+li{margin-bottom:6px}
+table{width:100%;border-collapse:collapse;font-size:14.5px;margin:18px 0 26px;display:block;overflow-x:auto}
+th{text-align:left;font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+tr:hover td{background:color-mix(in srgb,var(--primary) 6%,transparent)}
+code{font-size:.9em;background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 6px;border-radius:6px}
+.ph{font-size:13px;color:var(--muted);border:1px dashed var(--line);border-radius:12px;padding:12px 16px}
+footer{max-width:860px;margin:0 auto;padding:24px 20px 40px;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="top"><div><a href="/#dosszie">← Vissza a portálra</a><button type="button" id="th">Világos / sötét</button></div></div>
+<main>
+<div class="eyebrow">Háttérelemzés</div>
+__BODY__
+</main>
+<footer>Belső háttérelemzés · a Vezetői Tájékoztató Portál archívumából · utolsó frissítés: __DATE__</footer>
+<script>document.getElementById('th').onclick=()=>{const n=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('fvtp-theme',n)}catch(e){}};</script>
+</body>
+</html>

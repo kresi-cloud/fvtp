@@ -49,7 +49,7 @@
 :root[data-theme="light"] .tb-btn{border-color:rgba(10,10,30,.18)}
 :root[data-theme="light"] .tb-btn:hover{background:rgba(10,10,30,.05);border-color:rgba(10,10,30,.35)}
 :root[data-theme="light"] .nav button[aria-selected="true"]{color:var(--fg)}
-:root[data-theme="light"] .page-head::after{background:linear-gradient(180deg,rgba(9,14,20,.1) 0%,rgba(9,14,20,.55) 60%,rgba(9,14,20,.8) 100%),linear-gradient(90deg,rgba(96,0,255,.35),transparent 60%)}
+
 :root[data-theme="light"] .stats{background:rgba(255,255,255,.72);color:var(--fg);border-color:rgba(10,10,30,.08)}
 :root[data-theme="light"] .card{box-shadow:0 1px 2px rgba(10,10,30,.04),0 10px 30px rgba(10,10,30,.05)}
 :root[data-theme="light"] .btn{border-color:rgba(10,10,30,.2)}
@@ -95,16 +95,20 @@ header{position:sticky;top:0;z-index:40;backdrop-filter:blur(14px);background:rg
 
 /* Oldalfejek: képes sávok – a képek a public/img mappából (kampusz, olvasóterem, város) */
 .page-head{position:relative;isolation:isolate;overflow:hidden;border-radius:24px;padding:clamp(28px,5vw,56px) clamp(22px,4vw,44px);margin-block:20px 28px;min-height:230px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
-.page-head::before{content:"";position:absolute;inset:0;z-index:-2;background:#2d2849 var(--hv-img) center/cover no-repeat;transform:scale(1.02)}
-.page-head::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(9,14,20,.15) 0%,rgba(9,14,20,.72) 60%,rgba(9,14,20,.92) 100%),linear-gradient(90deg,rgba(96,0,255,.35),transparent 60%)}
-.page-head h1,.page-head h2{color:#fff;text-shadow:0 2px 24px rgba(0,0,0,.5)}
+.page-head::before{content:"";position:absolute;inset:0;z-index:-2;background:#2d2849 var(--hv-img) var(--hv-pos,center)/cover no-repeat;transform:scale(1.02);filter:saturate(.85)}
+.page-head::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(9,14,20,.35) 0%,rgba(9,14,20,.62) 45%,rgba(9,14,20,.9) 100%),linear-gradient(90deg,rgba(9,14,20,.7) 0%,rgba(9,14,20,.25) 55%,rgba(9,14,20,0) 100%),linear-gradient(90deg,rgba(96,0,255,.28),transparent 60%)}
+.page-head h1,.page-head h2{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6),0 2px 24px rgba(0,0,0,.55)}
+.page-head .lede,.page-head p{color:#e8e6f2!important;text-shadow:0 1px 2px rgba(0,0,0,.7);max-width:60ch}
+.page-head .aside,.page-head .aside *{color:#e8e6f2}
+.page-head .pill{color:#e8e6f2}
 .page-head .eyebrow{color:#cfc6ff}
-#v-kezdolap .page-head{--hv-img:url("/img/campus.jpg");min-height:340px}
-#v-briefek .page-head{--hv-img:url("/img/reading-room.jpg")}
-#v-hirek .page-head{--hv-img:url("/img/city.jpg")}
-#v-hataridok .page-head{--hv-img:url("/img/cathedral.jpg")}
-#v-dosszie .page-head{--hv-img:url("/img/library.jpg")}
-#v-feliratkozas .page-head{--hv-img:url("/img/city.jpg")}
+#v-kezdolap .page-head{--hv-img:url("/img/aok.jpg");--hv-pos:center 35%;min-height:340px}
+#v-briefek .page-head{--hv-img:url("/img/rektorat.jpg");--hv-pos:center 30%}
+#v-hirek .page-head{--hv-img:url("/img/klinika.jpg");--hv-pos:center 40%}
+#v-hataridok .page-head{--hv-img:url("/img/cathedral.jpg");--hv-pos:center 45%}
+#v-dosszie .page-head{--hv-img:url("/img/kozepkori.jpg");--hv-pos:center 55%}
+#v-feliratkozas .page-head{--hv-img:url("/img/tudaskozpont.jpg");--hv-pos:center 40%}
+#v-meghivas .page-head{--hv-img:url("/img/rektorat.jpg");--hv-pos:center 30%}
 .stats{background:rgba(9,14,20,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px 16px}
 
 /* Kártyák, gombok, chipek */
@@ -146,6 +150,6 @@ hr,.sec-head{border-color:var(--border)}
 /* javítások */
 :root[data-theme="light"] .topbar .tb-btn,:root[data-theme="light"] .topbar .tb-search,:root[data-theme="light"] .topbar .tb-search span{color:var(--fg)}
 :root[data-theme="light"] .brand small{color:var(--muted-fg)}
-.page-head{--hv-img:url("/img/library.jpg")}
+.page-head{--hv-img:url("/img/tudaskozpont.jpg")}
 a.hv-nolink{cursor:default;text-decoration:none;color:inherit}
 a.hv-nolink:hover{color:inherit}

@@ -9,6 +9,8 @@ itt, szöveges cserékkel kerül rá, így az artifact UX-változásai minden bu
 Ha egy csere nem talál (mert az artifact kódja változott), a szkript figyelmeztet, de nem áll le.
 """
 import argparse, json, os, re, shutil, sys, glob, datetime
+CLAUDE_RE = re.compile(r'''https?://(?:www\.)?claude\.ai/[^\s)\]"'<>]*''')
+MDLINK_RE = re.compile(r'\[([^\]]+)\]\((https?://(?:www\.)?claude\.ai/[^)]*)\)')
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ap = argparse.ArgumentParser()
@@ -142,9 +144,8 @@ function hvAdminInit(){
 <script>''', 'clerk-boot')
 
 # 7) lábléc: képek forrása (CC) – a design nem nevez intézményt
-html += '''\n<footer class="hv-foot wrap"><span>Napi frissítés · utolsó build: ''' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC') + '''</span><span>Fotók: Harta Viktor, Ruprech Judit (CC BY-SA 4.0), takacsja (CC BY-SA 2.5), Szajci (PD) – Wikimedia Commons</span></footer>\n'''
+html += '''\n<footer class="hv-foot wrap"><span>Napi frissítés · utolsó build: ''' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC') + '''</span><span>Fotók: Harta Viktor, Ruprech Judit, Mrszantogabor (CC BY-SA 4.0), Molnár Bence (CC BY-SA 3.0), takacsja (CC BY-SA 2.5) – Wikimedia Commons</span></footer>\n'''
 
-CLAUDE_RE = re.compile(r'''https?://(?:www\.)?claude\.ai/[^\s)\]"'<>]*''')
 html = CLAUDE_RE.sub('', html)
 html += '''\n<script>/* nyilvános oldal: üres vagy claude.ai-ra mutató link nem kattintható */
 (function(){const fix=r=>r.querySelectorAll('a[href]').forEach(a=>{const h=a.getAttribute('href')||'';if(h===''||h==='undefined'||/claude\\.ai\\//i.test(h)){a.removeAttribute('href');a.removeAttribute('target');a.classList.add('hv-nolink');}});
@@ -159,8 +160,40 @@ open(os.path.join(HERE, 'public', 'belepes.html'), 'w', encoding='utf-8').write(
 if not PK:
     warn.append('fvtp.config.json: clerkPublishableKey hiányzik (a belépés nem fog működni)')
 
+# háttérelemzések: saját oldalként a /elemzesek/ alatt (src/elemzesek/*.md, *.raw.html)
+ELEMZES_ID = {'9vTPoC7fSLJrv2ma4hFxYu': 'el-kitol-fugg', '4oReAR1hmisRfHV5W9Nb3w': 'el-kiktol-fugg',
+              'BSkV6oxg5kxeSKBckUQfhB': 'el-ki-nyer', '6k2vZSni9Nx8ChBbtRNjnp': 'el-vezetoi-halo'}
+def local_elemzes(url):
+    m = re.search(r'claude\.ai/(?:code/)?artifact/([A-Za-z0-9-]+)', url or '')
+    if m and m.group(1) in ELEMZES_ID and os.path.exists(os.path.join(HERE, 'public', 'elemzesek', ELEMZES_ID[m.group(1)] + '.html')):
+        return '/elemzesek/' + ELEMZES_ID[m.group(1)]
+    return None
+def build_elemzesek():
+    import markdown
+    src = os.path.join(HERE, 'src', 'elemzesek'); out = os.path.join(HERE, 'public', 'elemzesek')
+    if not os.path.isdir(src): return
+    os.makedirs(out, exist_ok=True)
+    tpl = open(os.path.join(HERE, 'src', 'elemzes-sablon.html'), encoding='utf-8').read()
+    today = datetime.date.today().isoformat()
+    for f in sorted(os.listdir(src)):
+        fp = os.path.join(src, f)
+        if f.endswith('.raw.html'):
+            shutil.copy(fp, os.path.join(out, f.replace('.raw.html', '.html'))); continue
+        if not f.endswith('.md'): continue
+        md = open(fp, encoding='utf-8').read()
+        lines = md.split('\n'); title = lines[0].lstrip('# ').strip()
+        body = '\n'.join(lines[1:])
+        body = re.sub(r'^\w{3} \d{1,2}, \d{4} · @.*$', '', body, flags=re.M)          # dátum- és említés-chip sor
+        for aid, slug in ELEMZES_ID.items():                                           # elemzések közti hivatkozás → helyi
+            body = re.sub(r'https?://claude\.ai/(?:code/)?artifact/' + aid, '/elemzesek/' + slug, body)
+        body = MDLINK_RE.sub(lambda m: m.group(1), body); body = CLAUDE_RE.sub('', body)
+        body = re.sub(r'&#91;embedded content: ([^\n]*?)\\?\]', lambda m: '<div class="ph">Beágyazott tábla/ábra – az eredeti dokumentumban: ' + m.group(1).replace('\\_', '_') + '</div>', body)
+        html_body = '<h1>' + title + '</h1>\n' + markdown.markdown(body, extensions=['tables', 'sane_lists'])
+        page = tpl.replace('__TITLE__', title).replace('__BODY__', html_body).replace('__DATE__', today)
+        open(os.path.join(out, f[:-3] + '.html'), 'w', encoding='utf-8').write(page)
+build_elemzesek()
+
 # adatok – a claude.ai-ra (artifactokra) mutató linkek a nyilvános oldalon nem jelenhetnek meg
-MDLINK_RE = re.compile(r'\[([^\]]+)\]\((https?://(?:www\.)?claude\.ai/[^)]*)\)')
 n_strip = [0]
 def is_claude(v):
     return isinstance(v, str) and CLAUDE_RE.match(v.strip() or 'x') is not None
@@ -174,6 +207,8 @@ def sanitize(o):
         out = {}
         for k, v in o.items():
             if isinstance(v, str) and is_claude(v):
+                loc = local_elemzes(v)
+                if loc: out[k] = loc; continue     # háttérelemzés → saját oldal
                 n_strip[0] += 1; continue          # url / source_url mező kihagyva
             out[k] = sanitize(v)
         return out
@@ -193,7 +228,12 @@ def write_json(obj, name):
 for f in ('briefek.json', 'storylines.json'):
     src = os.path.join(a.data, f)
     if os.path.exists(src):
-        write_json(json.load(open(src, encoding='utf-8')), f)
+        obj = json.load(open(src, encoding='utf-8'))
+        if f == 'briefek.json':
+            for an in obj.get('analyses', []):   # háttérelemzés → saját oldal (azonosító = oldal neve)
+                if an.get('id') and os.path.exists(os.path.join(HERE, 'public', 'elemzesek', an['id'] + '.html')):
+                    an['url'] = '/elemzesek/' + an['id']
+        write_json(obj, f)
     else:
         warn.append('hiányzik: ' + src)
 # db-export (ArtifactData out_dir szerkezet) → egyetlen tömb

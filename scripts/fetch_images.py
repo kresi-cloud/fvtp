@@ -5,11 +5,12 @@ import os, urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, '..', 'public', 'img')
 IMG = {
-  'campus.jpg':       'https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/A_400_%C3%A1gyas_klinika_az_%C3%BAj_elm%C3%A9leti_t%C3%B6mb_terasz%C3%A1r%C3%B3l_n%C3%A9zve.jpg/1920px-A_400_%C3%A1gyas_klinika_az_%C3%BAj_elm%C3%A9leti_t%C3%B6mb_terasz%C3%A1r%C3%B3l_n%C3%A9zve.jpg',
-  'reading-room.jpg': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Tud%C3%A1sk%C3%B6zpont_egyik_olvas%C3%B3terme_%28P%C3%A9cs%29.jpg/1920px-Tud%C3%A1sk%C3%B6zpont_egyik_olvas%C3%B3terme_%28P%C3%A9cs%29.jpg',
-  'library.jpg':      'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Tud%C3%A1sk%C3%B6zpont_l%C3%A1tk%C3%A9pe_%28P%C3%A9cs%29.jpg/1920px-Tud%C3%A1sk%C3%B6zpont_l%C3%A1tk%C3%A9pe_%28P%C3%A9cs%29.jpg',
-  'cathedral.jpg':    'https://upload.wikimedia.org/wikipedia/commons/2/29/Sz%C3%A9kesegyh%C3%A1z_%281796._sz%C3%A1m%C3%BA_m%C5%B1eml%C3%A9k%29_6.jpg',
-  'city.jpg':         'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/P%C3%A9cs-Ur%C3%A1nv%C3%A1ros_panor%C3%A1ma.jpg/1920px-P%C3%A9cs-Ur%C3%A1nv%C3%A1ros_panor%C3%A1ma.jpg',
+  'aok.jpg':        'https://upload.wikimedia.org/wikipedia/commons/2/24/A_PTE_%C3%81OK_%C3%BAj_elm%C3%A9leti_t%C3%B6mbje.jpg',
+  'rektorat.jpg':   'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Rector%27s_Office%2C_University_of_P%C3%A9cs.JPG/1920px-Rector%27s_Office%2C_University_of_P%C3%A9cs.JPG',
+  'kozepkori.jpg':  'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Medival_University_of_Pecs_southern_side.JPG/1920px-Medival_University_of_Pecs_southern_side.JPG',
+  'klinika.jpg':    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/A_400_%C3%A1gyas_klinika_az_%C3%BAj_elm%C3%A9leti_t%C3%B6mb_terasz%C3%A1r%C3%B3l_n%C3%A9zve.jpg/1920px-A_400_%C3%A1gyas_klinika_az_%C3%BAj_elm%C3%A9leti_t%C3%B6mb_terasz%C3%A1r%C3%B3l_n%C3%A9zve.jpg',
+  'tudaskozpont.jpg': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Tud%C3%A1sk%C3%B6zpont_l%C3%A1tk%C3%A9pe_%28P%C3%A9cs%29.jpg/1920px-Tud%C3%A1sk%C3%B6zpont_l%C3%A1tk%C3%A9pe_%28P%C3%A9cs%29.jpg',
+  'cathedral.jpg':  'https://upload.wikimedia.org/wikipedia/commons/2/29/Sz%C3%A9kesegyh%C3%A1z_%281796._sz%C3%A1m%C3%BA_m%C5%B1eml%C3%A9k%29_6.jpg',
 }
 os.makedirs(OUT, exist_ok=True)
 for name, url in IMG.items():
