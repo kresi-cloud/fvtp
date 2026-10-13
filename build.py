@@ -144,6 +144,12 @@ function hvAdminInit(){
 # 7) lábléc: képek forrása (CC) – a design nem nevez intézményt
 html += '''\n<footer class="hv-foot wrap"><span>Napi frissítés · utolsó build: ''' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC') + '''</span><span>Fotók: Harta Viktor, Ruprech Judit (CC BY-SA 4.0), takacsja (CC BY-SA 2.5), Szajci (PD) – Wikimedia Commons</span></footer>\n'''
 
+CLAUDE_RE = re.compile(r'''https?://(?:www\.)?claude\.ai/[^\s)\]"'<>]*''')
+html = CLAUDE_RE.sub('', html)
+html += '''\n<script>/* nyilvános oldal: üres vagy claude.ai-ra mutató link nem kattintható */
+(function(){const fix=r=>r.querySelectorAll('a[href]').forEach(a=>{const h=a.getAttribute('href')||'';if(h===''||h==='undefined'||/claude\\.ai\\//i.test(h)){a.removeAttribute('href');a.removeAttribute('target');a.classList.add('hv-nolink');}});
+fix(document);new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1){if(n.matches&&n.matches('a'))fix(n.parentNode||document);else fix(n);}}))).observe(document.body,{childList:true,subtree:true});})();
+</script>\n'''
 os.makedirs(os.path.join(HERE, 'public', 'data'), exist_ok=True)
 open(os.path.join(HERE, 'public', 'index.html'), 'w', encoding='utf-8').write(html)
 # belépőoldal a sablonból
@@ -153,11 +159,41 @@ open(os.path.join(HERE, 'public', 'belepes.html'), 'w', encoding='utf-8').write(
 if not PK:
     warn.append('fvtp.config.json: clerkPublishableKey hiányzik (a belépés nem fog működni)')
 
-# adatok
+# adatok – a claude.ai-ra (artifactokra) mutató linkek a nyilvános oldalon nem jelenhetnek meg
+MDLINK_RE = re.compile(r'\[([^\]]+)\]\((https?://(?:www\.)?claude\.ai/[^)]*)\)')
+n_strip = [0]
+def is_claude(v):
+    return isinstance(v, str) and CLAUDE_RE.match(v.strip() or 'x') is not None
+def clean_text(t):
+    t2 = MDLINK_RE.sub(lambda m: m.group(1), t)
+    t2 = CLAUDE_RE.sub('', t2)
+    if t2 != t: n_strip[0] += 1
+    return t2
+def sanitize(o):
+    if isinstance(o, dict):
+        out = {}
+        for k, v in o.items():
+            if isinstance(v, str) and is_claude(v):
+                n_strip[0] += 1; continue          # url / source_url mező kihagyva
+            out[k] = sanitize(v)
+        return out
+    if isinstance(o, list):
+        res = []
+        for v in o:
+            # [címke, url] forráspár claude.ai-url-lel → kihagyjuk
+            if isinstance(v, list) and len(v) == 2 and all(isinstance(x, str) for x in v) and is_claude(v[1]):
+                n_strip[0] += 1; continue
+            res.append(sanitize(v))
+        return res
+    if isinstance(o, str):
+        return clean_text(o)
+    return o
+def write_json(obj, name):
+    json.dump(sanitize(obj), open(os.path.join(HERE, 'public', 'data', name), 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
 for f in ('briefek.json', 'storylines.json'):
     src = os.path.join(a.data, f)
     if os.path.exists(src):
-        shutil.copy(src, os.path.join(HERE, 'public', 'data', f))
+        write_json(json.load(open(src, encoding='utf-8')), f)
     else:
         warn.append('hiányzik: ' + src)
 # db-export (ArtifactData out_dir szerkezet) → egyetlen tömb
@@ -168,9 +204,9 @@ for coll in ('hirek', 'digest'):
         d.setdefault('id', os.path.splitext(os.path.basename(p))[0])
         rows.append(d)
     if rows or not os.path.exists(os.path.join(HERE, 'public', 'data', coll + '.json')):
-        json.dump(rows, open(os.path.join(HERE, 'public', 'data', coll + '.json'), 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
+        write_json(rows, coll + '.json')
 
-print('build kész → public/index.html', f'({len(html)//1024} KB)')
+print('build kész → public/index.html', f'({len(html)//1024} KB)', '· kiszűrt claude.ai-hivatkozás:', n_strip[0])
 for w in warn:
     print('FIGYELEM, nem talált csere:', w)
 sys.exit(1 if warn else 0)

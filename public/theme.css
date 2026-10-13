@@ -147,3 +147,5 @@ hr,.sec-head{border-color:var(--border)}
 :root[data-theme="light"] .topbar .tb-btn,:root[data-theme="light"] .topbar .tb-search,:root[data-theme="light"] .topbar .tb-search span{color:var(--fg)}
 :root[data-theme="light"] .brand small{color:var(--muted-fg)}
 .page-head{--hv-img:url("/img/library.jpg")}
+a.hv-nolink{cursor:default;text-decoration:none;color:inherit}
+a.hv-nolink:hover{color:inherit}

@@ -567,7 +567,7 @@ footer .wordmark{font-size:14px;color:var(--fg)}
 (function(){let t="dark";try{t=localStorage.getItem("fvtp-theme")||"dark";}catch(e){}document.documentElement.setAttribute("data-theme",t);
 document.addEventListener("DOMContentLoaded",()=>{const b=document.getElementById("hvTheme");if(!b)return;b.addEventListener("click",()=>{const n=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("fvtp-theme",n);}catch(e){}});});})();
 </script>
-<script async crossorigin="anonymous" data-clerk-publishable-key="" src="https:///npm/@clerk/clerk-js@5/dist/clerk.browser.js"></script>
+<script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_YW1wbGUtY29yYWwtNDk5MC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://ample-coral-4990.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"></script>
 <script>
 window.addEventListener("load",async()=>{try{await Clerk.load();if(!Clerk.user){location.replace("/belepes.html");return;}
   const r=(Clerk.user.publicMetadata||{}).role;const ROLE_OK=["dekan","dh_tud","dh_okt","intezet","hivatal"];
@@ -652,7 +652,7 @@ let SL=null, openSl=null, BF=null; const slst={q:"",k:"",g:"",rend:"uj",limit:12
 const KIM={siker:"siker",kudarc:"kudarc",reszleges:"részleges",folyamatban:"folyamatban",nem_eldontheto:"nem eldönthető"};
 const JLAB={H:"hivatalos irat",K:"két független forrás",E:"egy forrás",N:"saját közlés",T:"következtetés"};
 const fold=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-const TB_URL="https://claude.ai/artifact/7jqAWgKP4QrBHJtZi8GZuU";
+const TB_URL="";
 const gLabel=g=>({"aok_pte_tenyadatbazis/ugyek.csv":"ÁOK/PTE lapok ügyei","rektori_atadas_atvetel_2026/szabalyzat_lancok.csv":"Szabályzat-láncok (rektori átadás 2026)","rektori_atadas_atvetel_2026/ugyek.csv":"Ügyláncok (rektori átadás 2026)"})[g]||g;
 const jb=j=>j?`<span class="jb ${esc(j)}" title="${esc(JLAB[j]||j)}">${esc(j)}</span>`:"";
 const outPill=k=>`<span class="out ${esc(k)}">${esc(KIM[k]||k)}</span>`;
@@ -1003,4 +1003,12 @@ const h=location.hash.replace("#","");if(["kezdolap","briefek","hirek","hatarido
 })();
 </script>
 
-<footer class="hv-foot wrap"><span>Napi frissítés · utolsó build: 2026-10-13 09:50 UTC</span><span>Fotók: Harta Viktor, Ruprech Judit (CC BY-SA 4.0), takacsja (CC BY-SA 2.5), Szajci (PD) – Wikimedia Commons</span></footer>
+
+
+
+<footer class="hv-foot wrap"><span>Napi frissítés · utolsó build: 2026-10-13 09:52 UTC</span><span>Fotók: Harta Viktor, Ruprech Judit (CC BY-SA 4.0), takacsja (CC BY-SA 2.5), Szajci (PD) – Wikimedia Commons</span></footer>
+
+<script>/* nyilvános oldal: üres vagy claude.ai-ra mutató link nem kattintható */
+(function(){const fix=r=>r.querySelectorAll('a[href]').forEach(a=>{const h=a.getAttribute('href')||'';if(h===''||h==='undefined'||/claude\.ai\//i.test(h)){a.removeAttribute('href');a.removeAttribute('target');a.classList.add('hv-nolink');}});
+fix(document);new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1){if(n.matches&&n.matches('a'))fix(n.parentNode||document);else fix(n);}}))).observe(document.body,{childList:true,subtree:true});})();
+</script>
