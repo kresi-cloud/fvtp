@@ -1,0 +1,16 @@
+{
+  "name": "fvtp",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Felsőoktatási Vezetői Tájékoztató Portál – napi frissítésű statikus oldal (Vercel + Clerk)",
+  "scripts": {
+    "build": "python3 build.py",
+    "images": "python3 scripts/fetch_images.py",
+    "invite": "python3 scripts/invite.py",
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod"
+  },
+  "dependencies": {
+    "@clerk/backend": "^2.4.0"
+  }
+}

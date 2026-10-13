@@ -1,0 +1,5 @@
+{
+  "clerkPublishableKey": "pk_test_...  (Clerk Dashboard → API keys → Publishable key; nyilvános, bekerül a HTML-be)",
+  "contactEmail": "gergely.kresak@gmail.com",
+  "adminEmails": ["gergely.kresak@gmail.com"]
+}

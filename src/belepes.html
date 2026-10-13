@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Belépés – Vezetői Tájékoztató Portál</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://api.fontshare.com"><link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap">
+<style>
+:root{--bg:#090e14;--fg:#f4f4f7;--muted:#a1a1aa;--primary:#6000ff;--lilac:#aa99ff;--input:#10161f;--line:rgba(255,255,255,.1);color-scheme:dark}
+:root[data-theme="light"]{--bg:#f8f8f8;--fg:#0b0b12;--muted:#5b5b66;--lilac:#4b2fb0;--input:#ffffff;--line:rgba(10,10,30,.12);color-scheme:light}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:"Satoshi",ui-sans-serif,system-ui,sans-serif;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(380px,.85fr);min-height:100vh}
+.hero{color:#fff;position:relative;isolation:isolate;overflow:hidden;padding:clamp(28px,5vw,64px);display:flex;flex-direction:column;justify-content:space-between}
+.hero::before{content:"";position:absolute;inset:0;z-index:-2;background:#2d2849 url("/img/cathedral.jpg") center/cover no-repeat}
+.hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(9,14,20,.25),rgba(9,14,20,.85)),linear-gradient(90deg,rgba(96,0,255,.35),transparent 70%)}
+.mark{width:44px;height:44px;border-radius:12px;background:var(--primary);display:grid;place-items:center}
+.hero h1{font-size:clamp(34px,4.6vw,60px);font-weight:400;letter-spacing:-.02em;line-height:1.05;margin:0 0 16px;max-width:14ch}
+.hero p{color:#d6d3e6;font-size:17px;max-width:46ch;margin:0;line-height:1.6}
+.hero .rating{margin-top:28px;color:#aa99ff;font-size:14px}
+.panel{display:grid;place-items:center;padding:clamp(24px,4vw,56px)}
+.box{width:min(420px,100%)}
+h2{font-weight:400;font-size:30px;letter-spacing:-.015em;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 22px;line-height:1.5}
+#clerk{min-height:320px}
+.foot{margin-top:22px;color:var(--muted);font-size:12.5px;line-height:1.5}
+.foot a{color:var(--lilac)}
+@media (max-width:880px){body{grid-template-columns:1fr}.hero{min-height:40vh}}
+</style>
+</head>
+<body>
+<section class="hero">
+  <div class="mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 22V10l7 8 7-8v12"/></svg></div>
+  <div>
+    <h1>Ami ma a vezetői asztalra tartozik.</h1>
+    <p>Agentek által naponta frissített összefoglalók, határidők és dossziék – egyetlen felületen, szerepkörre szabva.</p>
+    <div class="rating">Napi, heti és havi ritmusban · belső használatra</div>
+  </div>
+</section>
+<section class="panel">
+  <div class="box">
+    <h2>Belépés</h2>
+    <p class="sub">Google-fiókkal vagy e-mailben kapott kóddal. A portál csak meghívott vezetők számára elérhető – ha nincs meghívója, a fejlécben megadott címen kérhet.</p>
+    <div id="clerk"></div>
+    <p class="foot">A belépés ezen az eszközön 7 napig érvényes. Problémák esetén: <a href="mailto:__CONTACT_EMAIL__">__CONTACT_EMAIL__</a></p>
+  </div>
+</section>
+<script async crossorigin="anonymous"
+  data-clerk-publishable-key="__CLERK_PUBLISHABLE_KEY__"
+  src="https://__CLERK_FRONTEND_API__/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+  type="text/javascript"></script>
+<script>
+(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('fvtp-theme')||'dark');}catch(e){}})();
+window.addEventListener('load', async () => {
+  const light=document.documentElement.getAttribute('data-theme')==='light';
+  const q = new URLSearchParams(location.search);
+  let next = q.get('next') || '/';
+  if (!next.startsWith('/') || next.startsWith('//')) next = '/';
+  await Clerk.load({ localization: window.huHU });
+  if (Clerk.user) { location.replace(next); return; }
+  Clerk.mountSignIn(document.getElementById('clerk'), {
+    forceRedirectUrl: next,
+    appearance: {
+      variables: { colorPrimary: '#6000ff', colorBackground: light?'#ffffff':'#10161f', colorText: light?'#0b0b12':'#f4f4f7', colorTextSecondary: light?'#5b5b66':'#a1a1aa',
+                   colorInputBackground: light?'#f8f8f8':'#0c1118', colorInputText: light?'#0b0b12':'#f4f4f7', colorNeutral: light?'#0b0b12':'#ffffff', borderRadius: '14px',
+                   fontFamily: 'Satoshi, ui-sans-serif, system-ui, sans-serif', fontSize: '15px' },
+      elements: { card: { boxShadow: 'none', border: '1px solid var(--line)' }, formButtonPrimary: { borderRadius: '999px', fontSize: '15px', textTransform: 'none' },
+                  socialButtonsBlockButton: { borderRadius: '999px' }, footer: { display: 'none' }, logoBox: { display: 'none' } }
+    }
+  });
+});
+</script>
+</body>
+</html>
