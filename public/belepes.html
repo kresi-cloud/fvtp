@@ -66,8 +66,12 @@ window.addEventListener('load', async () => {
   if (!next.startsWith('/') || next.startsWith('//')) next = '/';
   await Clerk.load({ localization: window.FVTP_HU });
   if (Clerk.user) { location.replace(next); return; }
-  Clerk.mountSignIn(document.getElementById('clerk'), {
-    forceRedirectUrl: next,
+  // meghívó-link (__clerk_ticket) vagy ?mode=signup → regisztráció, egyébként belépés
+  const signup = q.has('__clerk_ticket') || q.get('mode') === 'signup' || q.has('__clerk_status');
+  if (signup) { const h = document.querySelector('.box h2'); if (h) h.textContent = 'Meghívó elfogadása'; }
+  const opts = {
+    forceRedirectUrl: next, fallbackRedirectUrl: next,
+    signInUrl: '/belepes', signUpUrl: '/belepes?mode=signup',
     appearance: {
       variables: { colorPrimary: '#6000ff', colorBackground: light?'#ffffff':'#10161f', colorText: light?'#0b0b12':'#f4f4f7', colorTextSecondary: light?'#5b5b66':'#a1a1aa',
                    colorInputBackground: light?'#f8f8f8':'#0c1118', colorInputText: light?'#0b0b12':'#f4f4f7', colorNeutral: light?'#0b0b12':'#ffffff', borderRadius: '14px',
@@ -75,7 +79,9 @@ window.addEventListener('load', async () => {
       elements: { card: { boxShadow: 'none', border: '1px solid var(--line)' }, formButtonPrimary: { borderRadius: '999px', fontSize: '15px', textTransform: 'none' },
                   socialButtonsBlockButton: { borderRadius: '999px' }, footer: { display: 'none' }, logoBox: { display: 'none' } }
     }
-  });
+  };
+  if (signup) Clerk.mountSignUp(document.getElementById('clerk'), opts);
+  else Clerk.mountSignIn(document.getElementById('clerk'), opts);
 });
 </script>
 </body>
