@@ -95,8 +95,8 @@ header{position:sticky;top:0;z-index:40;backdrop-filter:blur(14px);background:rg
 
 /* Oldalfejek: képes sávok – a képek a public/img mappából (kampusz, olvasóterem, város) */
 .page-head{position:relative;isolation:isolate;overflow:hidden;border-radius:24px;padding:clamp(28px,5vw,56px) clamp(22px,4vw,44px);margin-block:20px 28px;min-height:230px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
-.page-head::before{content:"";position:absolute;inset:0;z-index:-2;background:#2d2849 var(--hv-img) var(--hv-pos,center)/cover no-repeat;transform:scale(1.02);filter:saturate(.85)}
-.page-head::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(9,14,20,.35) 0%,rgba(9,14,20,.62) 45%,rgba(9,14,20,.9) 100%),linear-gradient(90deg,rgba(9,14,20,.7) 0%,rgba(9,14,20,.25) 55%,rgba(9,14,20,0) 100%),linear-gradient(90deg,rgba(96,0,255,.28),transparent 60%)}
+.page-head::before{content:"";position:absolute;inset:0;z-index:-2;background:#2d2849 var(--hv-img) var(--hv-pos,center)/cover no-repeat;transform:scale(1.02)}
+.page-head::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(9,14,20,0) 45%,rgba(9,14,20,.35) 100%)}
 .page-head h1,.page-head h2{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6),0 2px 24px rgba(0,0,0,.55)}
 .page-head .lede,.page-head p{color:#e8e6f2!important;text-shadow:0 1px 2px rgba(0,0,0,.7);max-width:60ch}
 .page-head .aside,.page-head .aside *{color:#e8e6f2}
@@ -153,3 +153,14 @@ hr,.sec-head{border-color:var(--border)}
 .page-head{--hv-img:url("/img/tudaskozpont.jpg")}
 a.hv-nolink{cursor:default;text-decoration:none;color:inherit}
 a.hv-nolink:hover{color:inherit}
+
+/* Olvashatóság: a fotó tiszta marad, a szöveg kap kontrasztos, áttetsző hátteret */
+.page-head > div:first-child{background:rgba(9,14,20,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:16px;padding:18px 22px;max-width:min(680px,100%);box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.page-head h1,.page-head h2{color:#fff;text-shadow:none}
+.page-head .eyebrow{color:#cfc6ff}
+.page-head .lede,.page-head p{color:#f1effa!important;text-shadow:none;margin-top:8px}
+.page-head .aside{background:rgba(9,14,20,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:14px;padding:10px 14px}
+.page-head .stats{background:rgba(9,14,20,.72);color:#f1effa;border-color:rgba(255,255,255,.14)}
+.page-head .stats b{color:#fff}
+:root[data-theme="light"] .page-head .stats{background:rgba(9,14,20,.72);color:#f1effa}
+:root[data-theme="light"] .page-head .stats b{color:#fff}
