@@ -936,6 +936,7 @@ $("#dosszieForm").addEventListener("submit",e=>{e.preventDefault();const t=$("#d
   fetch("/api/dosszie",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({t,dontes:$("#dDontes").value,kor:$("#dKor").value,hatar:$("#dHatar").value,storyline:openSl||""})}).then(r=>r.json()).then(j=>{if(j.ok)toast("Dosszié-kérés továbbítva (#"+j.issue+"), a következő frissítéskor készül.");else toast("A kérés helyben rögzítve, továbbítás nem sikerült: "+(j.error||""));}).catch(()=>toast("A kérés helyben rögzítve, továbbítás nem sikerült."));DOSSZIEK.unshift({id:"d-"+Date.now(),kero:ROLES[role].name,date:TODAY.toISOString().slice(0,10),t,s:"kérés rögzítve · "+($("#dKor").value)+($("#dHatar").value?" · kész: "+fmtS($("#dHatar").value):""),st:"elokesz"});renderDosszie();e.target.reset();toast("Dosszié-kérés rögzítve (prototípus: csak ebben a böngészőben).");});
 
 loadState();if(!subs)subs=defaultSubs(role);
+{const d=defaultSubs(role);for(const k in d)if(!subs[k]||typeof subs[k]!=="object")subs[k]=d[k];}/* új összefoglaló esetén a régi mentett beállítás kiegészül */
 renderAll();loadBriefek();loadSl();
 /* ---- Hírfigyelő: élő adat a portál adatbázisából (hirek, digest) ---- */
 const HCATS={nemzetkozi:"Nemzetközi",agazati:"Ágazati",intezmenyi:"Intézményi"};
@@ -1006,7 +1007,7 @@ const h=location.hash.replace("#","");if(["kezdolap","briefek","hirek","hatarido
 
 
 
-<footer class="hv-foot wrap"><span>Napi frissítés · utolsó build: 2026-10-13 10:01 UTC</span><span>Fotók: Harta Viktor, Ruprech Judit (CC BY-SA 4.0), takacsja (CC BY-SA 2.5), Szajci (PD) – Wikimedia Commons</span></footer>
+<footer class="hv-foot wrap"><span>Napi frissítés · utolsó build: 2026-10-13 10:13 UTC</span><span>Fotók: Harta Viktor, Ruprech Judit (CC BY-SA 4.0), takacsja (CC BY-SA 2.5), Szajci (PD) – Wikimedia Commons</span></footer>
 
 <script>/* nyilvános oldal: üres vagy claude.ai-ra mutató link nem kattintható */
 (function(){const fix=r=>r.querySelectorAll('a[href]').forEach(a=>{const h=a.getAttribute('href')||'';if(h===''||h==='undefined'||/claude\.ai\//i.test(h)){a.removeAttribute('href');a.removeAttribute('target');a.classList.add('hv-nolink');}});
