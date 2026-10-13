@@ -16,7 +16,11 @@ for name, url in IMG.items():
     dst = os.path.join(OUT, name)
     if os.path.exists(dst):
         print('megvan:', name); continue
-    req = urllib.request.Request(url, headers={'User-Agent': 'fvtp-build/1.0 (static site images)'})
-    with urllib.request.urlopen(req) as r, open(dst, 'wb') as f:
-        f.write(r.read())
-    print('letöltve:', name)
+    try:
+        req = urllib.request.Request(url, headers={'User-Agent': 'fvtp-build/1.0 (static site images; contact via repo)'})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            data = r.read()
+        open(dst, 'wb').write(data)
+        print('letöltve:', name)
+    except Exception as e:  # a build ettől ne álljon le – a kép nélkül is megy az oldal
+        print('NEM sikerült:', name, e)
