@@ -16,11 +16,17 @@ for name, url in IMG.items():
     dst = os.path.join(OUT, name)
     if os.path.exists(dst):
         print('megvan:', name); continue
-    try:
-        req = urllib.request.Request(url, headers={'User-Agent': 'fvtp-build/1.0 (static site images; contact via repo)'})
-        with urllib.request.urlopen(req, timeout=30) as r:
-            data = r.read()
-        open(dst, 'wb').write(data)
-        print('letöltve:', name)
-    except Exception as e:  # a build ettől ne álljon le – a kép nélkül is megy az oldal
-        print('NEM sikerült:', name, e)
+    import time
+    UA = 'fvtp-build/1.0 (https://github.com/kresi-cloud/fvtp; gergely.kresak@gmail.com) python-urllib'
+    ok = False
+    for attempt, u in enumerate([url, url.replace('upload.wikimedia.org', 'thumb.wikimedia.org'), url]):
+        try:
+            req = urllib.request.Request(u, headers={'User-Agent': UA, 'Accept': 'image/jpeg,image/*;q=0.8'})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                data = r.read()
+            open(dst, 'wb').write(data)
+            print('letöltve:', name, len(data) // 1024, 'KB'); ok = True; break
+        except Exception as e:  # a build ettől ne álljon le – a kép nélkül is megy az oldal
+            print('próba', attempt + 1, 'nem sikerült:', name, e); time.sleep(3 + 3 * attempt)
+    if not ok:
+        print('NEM sikerült:', name)
