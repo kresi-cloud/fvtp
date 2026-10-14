@@ -10,7 +10,7 @@
 :root[data-theme="light"]{--bg:#f8f8f8;--fg:#0b0b12;--muted:#5b5b66;--lilac:#4b2fb0;--input:#ffffff;--line:rgba(10,10,30,.12);color-scheme:light}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
-body{background:var(--bg);color:var(--fg);font-family:"Satoshi",ui-sans-serif,system-ui,sans-serif;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(380px,.85fr);min-height:100vh}
+body{background:var(--bg);color:var(--fg);font-family:"Satoshi",ui-sans-serif,system-ui,sans-serif;display:grid;min-height:100vh}
 .hero{color:#fff;position:relative;isolation:isolate;overflow:hidden;padding:clamp(28px,5vw,64px);display:flex;flex-direction:column;justify-content:space-between}
 .hero::before{content:"";position:absolute;inset:0;z-index:-2;background:#2d2849 url("/img/cathedral.jpg") center/cover no-repeat}
 .mark{width:44px;height:44px;border-radius:12px;background:var(--primary);display:grid;place-items:center}
@@ -29,7 +29,6 @@ h2{font-weight:500;font-size:30px;letter-spacing:-.015em;margin:0 0 6px}
 </style>
 </head>
 <body>
-<section class="hero" aria-hidden="true"></section>
 <section class="panel">
   <div class="box">
     <p class="name">Felsőoktatási Vezetői Tájékoztató Portál</p>

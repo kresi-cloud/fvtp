@@ -114,7 +114,6 @@ main{padding-block:40px 72px}
 .head{margin-bottom:32px}
 .head p{color:var(--muted);margin-top:6px;max-width:64ch}
 .head-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px}
-.band{height:160px;border-radius:6px;background:#1c2230 center/cover no-repeat;margin-bottom:28px}
 .sh{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px;margin-bottom:12px}
 .sh .muted{font-size:14px}
 .lnk{background:none;border:0;padding:0;color:var(--link);font-size:14.5px;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:3px}
@@ -256,7 +255,7 @@ td.mute{color:var(--muted);font-size:14px}
 .form textarea{min-height:96px;resize:vertical}
 .form .hint{font-size:14px;color:var(--muted);font-weight:400}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
-#dForm{border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);padding:24px 0;margin-bottom:48px}
+#dForm{scroll-margin-top:130px;border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);padding:24px 0;margin-bottom:48px}
 #dForm h2{margin-bottom:6px}
 #dForm > p{color:var(--muted);margin-bottom:18px;max-width:64ch}
 
@@ -327,7 +326,6 @@ footer .wrap{padding-block:22px 28px;font-size:13.5px;color:var(--muted)}
 
 <section class="view" id="v-osszefoglalok" hidden>
   <div id="catalogHome">
-    <div class="band" style="background-image:url(img/rektorat.jpg);background-position:center 32%"></div>
     <div class="head head-row">
       <div><h1>Összefoglalók</h1><p>Amit követ, az a Ma oldalon és az értesítések között jelenik meg.</p></div>
       <button class="lnk" type="button" id="applyPreset">Alapbeállítás visszaállítása</button>
@@ -384,7 +382,6 @@ footer .wrap{padding-block:22px 28px;font-size:13.5px;color:var(--muted)}
 
 <section class="view" id="v-dossziek" hidden>
   <div id="dosszieHome">
-    <div class="band" style="background-image:url(img/kozepkori.jpg);background-position:center 55%"></div>
     <div class="head head-row">
       <div><h1>Dossziék</h1><p>Egy ügy előzményei, jogi háttere és döntései egy helyen.</p></div>
       <button class="btn primary" type="button" id="newDosszieBtn">Dosszié kérése</button>
@@ -392,12 +389,12 @@ footer .wrap{padding-block:22px 28px;font-size:13.5px;color:var(--muted)}
 
     <section id="dForm" hidden>
       <h2>Dosszié kérése</h2>
-      <p>A kész dosszié ezen az oldalon jelenik meg, és értesítést kap róla.</p>
+      <p>A kész dosszié ezen az oldalon jelenik meg, és értesítést kap róla. Egy hírből is indíthat kérést: a Hírek oldalon minden hír alatt ott a „Dosszié erről” gomb.</p>
       <form class="form" id="dosszieForm">
-        <label>Az ügy<input id="dTema" required placeholder="pl. a doktori iskola átalakításának előzményei"></label>
+        <label>Az ügy vagy téma<input id="dTema" required placeholder="pl. a doktori iskola átalakításának előzményei"></label>
+        <div id="dHir" class="hint" hidden></div>
         <label>Milyen döntéshez kell?<textarea id="dDontes" placeholder="Mit, mikor, melyik testület dönt el?"></textarea></label>
-        <label>Terjedelem<select id="dKor"><option>Előzmények és belső határozatok</option><option>Előzmények és jogszabályi háttér</option><option>Teljes: előzmények, jog, határozatok, kockázatok, más intézmények példái</option></select></label>
-        <label>Mikorra kell<input id="dHatar" type="date"></label>
+        <label>Terjedelem<select id="dKor"><option>A hírekből: mit írtak a témáról, időrendben</option><option>Hírek és háttér: a hírek mellett előzmények, jog, határozatok</option><option>Előzmények és belső határozatok</option><option>Előzmények és jogszabályi háttér</option><option>Teljes: előzmények, jog, határozatok, kockázatok, más intézmények példái</option></select></label>
         <div class="actions"><button class="btn primary" type="submit">Kérés elküldése</button><button class="btn" type="button" id="dCancel">Mégse</button></div>
       </form>
     </section>
@@ -452,7 +449,7 @@ footer .wrap{padding-block:22px 28px;font-size:13.5px;color:var(--muted)}
 </main>
 
 <footer>
-  <div class="wrap"><span id="ftUpd"></span>Fotók: Harta Viktor, Ruprech Judit, Mrszantogabor (CC BY-SA 4.0), Molnár Bence (CC BY-SA 3.0), takacsja (CC BY-SA 2.5), Wikimedia Commons.</div>
+  <div class="wrap tn" id="ftUpd"></div>
 </footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -501,6 +498,10 @@ const GROUPS=[["elo","Rendszeresen megjelenik",""],["elokesz","Hamarosan indul",
 const DTYPE={"pályázati határidő":"Pályázat","véleményezési/jogi határidő":"Jogszabály, véleményezés","adatszolgáltatás":"Adatszolgáltatás","egyetemi határidő":"Egyetemi","egyetemi döntési határidő":"Egyetemi"};
 const KIM={siker:"sikeres",kudarc:"sikertelen",reszleges:"részleges",folyamatban:"folyamatban",nem_eldontheto:"nem eldönthető"};
 const JLAB={H:"hivatalos irat",K:"két független forrás",E:"egy forrás",N:"saját közlés",T:"következtetés"};
+const APP_VERSION="2.1";
+function stamp(g){const p=n=>String(n).padStart(2,"0");return g.getFullYear()+"."+p(g.getMonth()+1)+"."+p(g.getDate())+". "+p(g.getHours())+":"+p(g.getMinutes());}
+function genDate(){const s=BF&&BF.meta&&BF.meta.gen;if(!s)return null;let g=new Date(s);if(isNaN(g))g=new Date(s.replace(/Z$/,":00Z"));return isNaN(g)?null:g;}
+function renderFoot(){const g=genDate();$("#ftUpd").textContent="Verzió "+APP_VERSION+(g?". Utolsó frissítés: "+stamp(g):"");}
 const TB_URL="";
 const gLabel=g=>({"aok_pte_tenyadatbazis/ugyek.csv":"Kari és egyetemi lapok","rektori_atadas_atvetel_2026/szabalyzat_lancok.csv":"Szabályzatok (rektori átadás, 2026)","rektori_atadas_atvetel_2026/ugyek.csv":"Ügyek (rektori átadás, 2026)"})[g]||"Egyéb";
 const outTxt=k=>`<span class="out ${esc(k)}">${esc(KIM[k]||k||"")}</span>`;
@@ -632,7 +633,7 @@ function renderDosszieReader(){
   $("#dosszieHome").hidden=true;$("#slReaderWrap").hidden=true;$("#dosszieReaderWrap").hidden=false;
   const others=DOSSZIEK.filter(x=>x.st==="elo"&&x.id!==d.id);
   $("#dosszieReader").innerHTML=`<article class="doc">
-    <p class="m">Dosszié, ${fmt(d.date)}${d.kero?". Kérte: "+esc(d.kero):""}</p>
+    <p class="m">Dosszié, ${fmt(d.date)}${d.kero?" Kérte: "+esc(d.kero):""}</p>
     <h1>${esc(d.t)}</h1>
     <p class="lead">${esc(d.lead||"")}</p>
     ${(d.sections||[]).map(s=>`<h2>${esc(s.h)}</h2><ul>${s.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>`).join("")}
@@ -648,6 +649,9 @@ function renderAnalyses(){
   $("#anList").innerHTML=list.length?list.map(a=>`<a class="item" ${ext(a.url)}><span class="t">${esc(a.title)}</span><span class="r">${a.date?fmtS(a.date):""}</span>${a.lead?`<span class="s clamp">${esc(a.lead)}</span>`:""}</a>`).join("")
     :'<div class="empty">Még nincs háttérelemzés.</div>';
 }
+let dHir=null;
+function renderDHir(){const el=$("#dHir");if(!dHir){el.hidden=true;el.innerHTML="";return;}el.hidden=false;el.innerHTML=`Kiinduló hír: <a ${ext(dHir.url)}>${esc(dHir.title)}</a> <button type="button" class="lnk" id="dHirX" style="font-size:14px">elhagyás</button>`;}
+document.addEventListener("click",e=>{if(e.target.id==="dHirX"){dHir=null;renderDHir();}});
 function openForm(){const f=$("#dForm");f.hidden=false;f.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("#dTema").focus(),250);}
 
 /* ---- Ügyláncok ---- */
@@ -716,7 +720,7 @@ async function loadBriefek(){
     DEADLINES=(BF.deadlines||[]).slice().sort((a,b)=>(a.date||"").localeCompare(b.date||""));
     ALERTS=(BF.alerts||[]).slice();
     if(Array.isArray(BF.dossziek)){const ids=new Set(BF.dossziek.map(d=>d.id));const local=DOSSZIEK.filter(d=>!ids.has(d.id));DOSSZIEK.length=0;DOSSZIEK.push(...BF.dossziek,...local);}
-    if(BF.meta&&BF.meta.gen)$("#ftUpd").textContent="Adatok frissítve: "+fmt(BF.meta.gen.slice(0,10))+" ";
+    renderFoot();
     renderAll();
   }catch(e){renderAll();}
 }
@@ -776,7 +780,7 @@ function renderSearch(){
   $("#bellPop").hidden=true;p.hidden=false;$("#q").setAttribute("aria-expanded","true");
 }
 
-function renderAll(){renderMa();renderCatalog();renderDeadlines();renderDosszie();renderAnalyses();renderBell();if(!$("#readerWrap").hidden)renderReader();}
+function renderAll(){renderFoot();renderMa();renderCatalog();renderDeadlines();renderDosszie();renderAnalyses();renderBell();if(!$("#readerWrap").hidden)renderReader();}
 
 /* ---- Események ---- */
 document.addEventListener("click",e=>{
@@ -817,7 +821,7 @@ $("#slK").addEventListener("change",e=>{slst.k=e.target.value;slst.limit=12;rend
 $("#slG").addEventListener("change",e=>{slst.g=e.target.value;slst.limit=12;renderSl();});
 $("#slRend").addEventListener("change",e=>{slst.rend=e.target.value;slst.limit=12;renderSl();});
 $("#newDosszieBtn").addEventListener("click",openForm);
-$("#dCancel").addEventListener("click",()=>{$("#dosszieForm").reset();$("#dForm").hidden=true;});
+$("#dCancel").addEventListener("click",()=>{$("#dosszieForm").reset();dHir=null;renderDHir();$("#dForm").hidden=true;});
 $("#brand").addEventListener("click",e=>{e.preventDefault();openDosszie=null;openSl=null;show("ma");});
 $("#bellBtn").addEventListener("click",openBell);
 $("#q").addEventListener("input",()=>{qSel=-1;renderSearch();});
@@ -828,7 +832,7 @@ $("#q").addEventListener("keydown",e=>{const rows=[...$("#qPop").querySelectorAl
   else if(e.key==="Enter"){const r=rows[qSel>=0?qSel:0];if(r){e.preventDefault();r.click();$("#q").blur();}}});
 $("#hvTheme").addEventListener("click",()=>{const n=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("fvtp-theme",n);}catch(e){}});
 $("#dosszieForm").addEventListener("submit",e=>{e.preventDefault();const t=$("#dTema").value.trim();if(!t)return;
-  fetch("/api/dosszie",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({t,dontes:$("#dDontes").value,kor:$("#dKor").value,hatar:$("#dHatar").value,storyline:openSl||""})}).then(r=>r.json()).then(j=>{if(j.ok)toast("Dosszié-kérés továbbítva (#"+j.issue+"), a következő frissítéskor készül.");else toast("A kérés helyben rögzítve, továbbítás nem sikerült: "+(j.error||""));}).catch(()=>toast("A kérés helyben rögzítve, továbbítás nem sikerült."));DOSSZIEK.unshift({id:"d-"+Date.now(),kero:ROLES[role].name,date:isoD(TODAY),t,s:$("#dKor").value,st:"elokesz"});renderDosszie();e.target.reset();$("#dForm").hidden=true;toast("A kérés rögzítve. A kész dossziéról értesítést kap.");});
+  fetch("/api/dosszie",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({t,dontes:$("#dDontes").value,kor:$("#dKor").value,hir:dHir||null,storyline:openSl||""})}).then(r=>r.json()).then(j=>{if(j.ok)toast("Dosszié-kérés továbbítva (#"+j.issue+"), a következő frissítéskor készül.");else toast("A kérés helyben rögzítve, továbbítás nem sikerült: "+(j.error||""));}).catch(()=>toast("A kérés helyben rögzítve, továbbítás nem sikerült."));DOSSZIEK.unshift({id:"d-"+Date.now(),kero:ROLES[role].name,date:isoD(TODAY),t,s:$("#dKor").value,st:"elokesz"});renderDosszie();e.target.reset();dHir=null;renderDHir();$("#dForm").hidden=true;toast("A kérés rögzítve. A kész dossziéról értesítést kap.");});
 
 loadState();if(!subs)subs=defaultSubs(role);
 {const d=defaultSubs(role);for(const k in d)if(!subs[k]||typeof subs[k]!=="object")subs[k]=d[k];}
@@ -846,7 +850,7 @@ function mdSection(md,head){const m=String(md||"").split(/\n(?=###\s)/).find(s=>
 function renderHirek(){
   const q=fold(hQ.trim());
   const feed=hirek.filter(i=>(!hCat||i.category===hCat)&&(!q||q.split(/\s+/).every(t=>fold([i.title,i.abstract,i.source,i.institution].join(" ")).includes(t))));
-  $("#hirFeed").innerHTML=feed.length?feed.slice(0,hLimit).map(i=>`<div class="hitem"><span class="date">${esc(fmtS(i.date))}</span><div><a class="t" ${ext(safeUrl(i.url))}>${esc(i.title)}</a>${i.abstract?`<p>${esc(i.abstract)}</p>`:""}<div class="meta">${HCATS[i.category]?`<span>${HCATS[i.category]}</span>`:""}${i.institution?`<span>${esc(i.institution)}</span>`:""}${i.source?`<span>${esc(i.source)}</span>`:""}</div></div></div>`).join("")
+  $("#hirFeed").innerHTML=feed.length?feed.slice(0,hLimit).map(i=>`<div class="hitem"><span class="date">${esc(fmtS(i.date))}</span><div><a class="t" ${ext(safeUrl(i.url))}>${esc(i.title)}</a>${i.abstract?`<p>${esc(i.abstract)}</p>`:""}<div class="meta">${HCATS[i.category]?`<span>${HCATS[i.category]}</span>`:""}${i.institution?`<span>${esc(i.institution)}</span>`:""}${i.source?`<span>${esc(i.source)}</span>`:""}<button class="lnk" style="font-size:14px" data-hirdosszie="${esc(i.id||"")}">Dosszié erről</button></div></div></div>`).join("")
     :`<div class="empty">${hirek.length?"Nincs ilyen hír.":"Betöltés…"}</div>`;
   $("#hirMoreP").hidden=feed.length<=hLimit;
   renderDigest();
@@ -874,6 +878,8 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-dt],[data-
 $("#digSel").addEventListener("change",e=>{hOpenDigest=e.target.value;renderDigest();});
 $("#hirQ").addEventListener("input",e=>{hQ=e.target.value;hLimit=40;renderHirek();});
 $("#hirMore").addEventListener("click",()=>{hLimit+=60;renderHirek();});
+document.addEventListener("click",e=>{const t=e.target.closest("[data-hirdosszie]");if(!t)return;const h=hirek.find(x=>(x.id||"")===t.dataset.hirdosszie);if(!h)return;
+  dHir={id:h.id||"",title:h.title,url:h.url||"",date:h.date||""};openSl=null;openDosszie=null;show("dossziek");$("#dTema").value=h.title;$("#dKor").selectedIndex=0;renderDHir();openForm();});
 
 renderAll();renderHirek();loadBriefek();loadSl();
 (async()=>{

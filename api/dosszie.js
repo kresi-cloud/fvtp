@@ -20,17 +20,18 @@ export default async function handler(req, res) {
   if (!t) return res.status(400).json({ error: 'hiányzó tárgy' });
   const dontes = String(b.dontes || '').trim().slice(0, 2000);
   const kor = String(b.kor || '').trim().slice(0, 200);
-  const hatar = /^\d{4}-\d{2}-\d{2}$/.test(b.hatar || '') ? b.hatar : '';
+  const h = b.hir && typeof b.hir === 'object' ? b.hir : null;
+  const hir = h ? { title: String(h.title || '').slice(0, 300), url: /^https?:\/\//.test(h.url || '') ? String(h.url).slice(0, 500) : '', date: String(h.date || '').slice(0, 10) } : null;
   const storyline = String(b.storyline || '').trim().slice(0, 100);
   const id = 'd-' + Date.now().toString(36);
 
   const token = process.env.GITHUB_TOKEN, repo = process.env.GITHUB_REPO || 'kresi-cloud/fvtp';
   if (!token) return res.status(500).json({ error: 'GITHUB_TOKEN hiányzik' });
-  const payload = { id, t, dontes, kor, hatar, storyline, kero: name, email, role, date: new Date().toISOString().slice(0, 10) };
+  const payload = { id, t, dontes, kor, hir, storyline, kero: name, email, role, date: new Date().toISOString().slice(0, 10) };
   const body = [
     `**Kérte:** ${name} (${email}${role ? ', ' + role : ''})`,
     `**Tárgy:** ${t}`, dontes ? `**Előkészítendő döntés:** ${dontes}` : '', kor ? `**Kör:** ${kor}` : '',
-    hatar ? `**Kész legyen:** ${hatar}` : '', storyline ? `**Storyline:** ${storyline}` : '',
+    hir ? `**Kiinduló hír:** [${hir.title}](${hir.url})${hir.date ? ' (' + hir.date + ')' : ''}` : '', storyline ? `**Storyline:** ${storyline}` : '',
     '', '```json', JSON.stringify(payload, null, 2), '```',
   ].filter(l => l !== '').join('\n');
   const r = await fetch(`https://api.github.com/repos/${repo}/issues`, {
