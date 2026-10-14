@@ -90,15 +90,22 @@ rep('if(!db){st.textContent="adatbázis nem elérhető ebben a nézetben";return
 
 # 6) Clerk: szerep a felhasználó publicMetadata.role mezőjéből (a meghívón állítható), kilépés gomb
 rep('<script>', '''<script>window.HV_ADMIN_EMAILS=''' + json.dumps(ADMINS) + ''';
+/* belépés után az első betöltéskor a Clerk-süti még frissülhet: az adatlekérés megvárja, és hiba esetén újrapróbál */
+window.HV_READY=new Promise(r=>{window.HV_READY_RESOLVE=r;setTimeout(r,8000);});
+(function(){const of=window.fetch.bind(window);window.fetch=async function(u,o){const s=String(u&&u.url||u);if(!/^(\/)?data\//.test(s))return of(u,o);
+  await window.HV_READY;let last;for(let i=0;i<4;i++){try{const r=await of(u,o);const ct=r.headers.get("content-type")||"";if(r.ok&&/json/.test(ct))return r;last=r;}catch(e){last=e;}
+    try{if(window.Clerk&&Clerk.session)await Clerk.session.getToken({skipCache:true});}catch(e){}await new Promise(z=>setTimeout(z,600*(i+1)));}
+  if(last instanceof Response)return last;throw last;};})();
 </script>\n<script async crossorigin="anonymous" data-clerk-publishable-key="''' + PK + '''" src="https://''' + FA + '''/npm/@clerk/clerk-js@5/dist/clerk.browser.js"></script>
 <script>
 window.addEventListener("load",async()=>{try{await Clerk.load();if(!Clerk.user){location.replace("/belepes.html");return;}
+  try{if(Clerk.session)await Clerk.session.getToken();}catch(e){}window.HV_READY_RESOLVE&&window.HV_READY_RESOLVE();
   const r=(Clerk.user.publicMetadata||{}).role;const ROLE_OK=["dekan","dh_tud","dh_okt","intezet","hivatal"];
   if(ROLE_OK.includes(r)){const k="aok-brief-portal";const s=JSON.parse(localStorage.getItem(k)||"{}");if(s.role!==r){s.role=r;localStorage.setItem(k,JSON.stringify(s));const sel=document.getElementById("roleSel");if(sel){sel.value=r;sel.dispatchEvent(new Event("change"));}}}
   const isAdmin=(Clerk.user.publicMetadata||{}).admin===true||(window.HV_ADMIN_EMAILS||[]).includes((Clerk.user.primaryEmailAddress||{}).emailAddress);
   if(isAdmin){const t=document.getElementById("hvAdminTab");if(t)t.hidden=false;hvAdminInit();}
   const lb=document.getElementById("hvLogout");if(lb){lb.title="Kilépés – "+(Clerk.user.primaryEmailAddress?Clerk.user.primaryEmailAddress.emailAddress:"");lb.addEventListener("click",()=>Clerk.signOut({redirectUrl:"/belepes.html"}));}
-}catch(e){console.warn("Clerk",e);}});
+}catch(e){console.warn("Clerk",e);window.HV_READY_RESOLVE&&window.HV_READY_RESOLVE();}});
 function hvAdminInit(){
   const E=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const RN={dekan:"Vezető",dh_tud:"Tud. helyettes",dh_okt:"Okt. helyettes",intezet:"Egységvezető",hivatal:"Hivatalvezető"};

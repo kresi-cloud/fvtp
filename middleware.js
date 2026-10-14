@@ -11,6 +11,9 @@ export default async function middleware(req) {
   const clerk = createClerkClient({ secretKey, publishableKey });
   const url = new URL(req.url);
   const state = await clerk.authenticateRequest(req, { authorizedParties: [url.origin] });
+  // adat- és API-kérésnél (fetch) nem irányítunk át: 401, a kliens frissíti a munkamenetet és újrapróbálja
+  const isDoc = (req.headers.get('sec-fetch-dest') || 'document') === 'document';
+  if (!isDoc && !state.isSignedIn) return new Response('{"error":"session"}', { status: 401, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
   if (state.status === 'handshake') {               // Clerk a session-süti frissítését kéri (átirányítás)
     return new Response(null, { status: 307, headers: state.headers });
   }
