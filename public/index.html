@@ -653,7 +653,7 @@ function renderDosszieReader(){
     <p class="m">Dosszié, ${fmt(d.date)}${d.kero?" Kérte: "+esc(d.kero):""}</p>
     <h1>${esc(d.t)}</h1>
     <p class="lead">${esc(d.lead||"")}</p>
-    ${(d.sections||[]).map(s=>`<h2>${esc(s.h)}</h2><ul>${s.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>`).join("")}
+    ${(d.sections||[]).map(s=>`<h2>${esc(s.h)}</h2>${(s.p||[]).map(t=>`<p>${esc(t)}</p>`).join("")}${s.items&&s.items.length?`<ul>${s.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>`:""}`).join("")}
     ${d.sources&&d.sources.length?`<h2>Források</h2><ul>${d.sources.map(s=>`<li><a ${ext(s[1])}>${esc(s[0])}</a></li>`).join("")}</ul>`:""}
   </article>
   <aside class="side">
@@ -666,7 +666,7 @@ function renderAnalyses(){
   $("#anList").innerHTML=list.length?list.map(a=>`<a class="item" ${ext(a.url)}><span class="t">${esc(a.title)}</span><span class="r">${a.date?fmtS(a.date):""}</span>${a.lead?`<span class="s clamp">${esc(a.lead)}</span>`:""}</a>`).join("")
     :'<div class="empty">Még nincs háttérelemzés.</div>';
 }
-let dHir=null;
+let dHir=null, dSl=null;
 function renderDHir(){const el=$("#dHir");if(!dHir){el.hidden=true;el.innerHTML="";return;}el.hidden=false;el.innerHTML=`Kiinduló hír: <a ${ext(dHir.url)}>${esc(dHir.title)}</a> <button type="button" class="lnk" id="dHirX" style="font-size:14px">elhagyás</button>`;}
 document.addEventListener("click",e=>{if(e.target.id==="dHirX"){dHir=null;renderDHir();}});
 function openForm(){const f=$("#dForm");f.hidden=false;f.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("#dTema").focus(),250);}
@@ -796,7 +796,7 @@ function searchAll(q){
   g.push(["Összefoglalók",iss]);
   g.push(["Határidők",DEADLINES.filter(d=>daysTo(d.date)>=0&&hit(d.what+" "+(d.src||""))).map(d=>({t:d.what,r:fmtS(d.date),href:d.url}))]);
   g.push(["Hírek",hirek.filter(i=>hit([i.title,i.abstract,i.source,i.institution].join(" "))).map(i=>({t:i.title,r:fmtS(i.date),href:safeUrl(i.url),k:i.source}))]);
-  g.push(["Dossziék",DOSSZIEK.filter(d=>d.st==="elo"&&hit([d.t,d.lead,(d.sections||[]).map(s=>s.items.join(" ")).join(" ")].join(" "))).map(d=>({t:d.t,r:fmtS(d.date),attr:`data-dosszie="${esc(d.id)}"`}))]);
+  g.push(["Dossziék",DOSSZIEK.filter(d=>d.st==="elo"&&hit([d.t,d.lead,(d.sections||[]).map(s=>(s.items||[]).concat(s.p||[]).join(" ")).join(" ")].join(" "))).map(d=>({t:d.t,r:fmtS(d.date),attr:`data-dosszie="${esc(d.id)}"`}))]);
   g.push(["Háttérelemzések",(BF&&BF.analyses||[]).filter(a=>hit(a.title+" "+(a.lead||""))).map(a=>({t:a.title,r:a.date?fmtS(a.date):"",href:a.url}))]);
   g.push(["Ügyláncok",SL?SL.ugyek.filter(u=>terms.every(t=>u._f.includes(t))).map(u=>({t:u.cim,r:u.tol||"",attr:`data-sl="${esc(u.id)}"`})):[]]);
   return g.filter(x=>x[1].length);
@@ -818,7 +818,7 @@ document.addEventListener("click",e=>{
   if(!e.target.closest(".pop,#bellBtn,#q"))closePops();
   const t=e.target.closest("[data-view],[data-goto],[data-open],[data-issue-k],[data-f],[data-dosszie],[data-sl],#slToDosszie");if(!t)return;
   if(t.closest(".pop"))closePops();
-  if(t.id==="slToDosszie"){const u=SL&&SL.ugyek.find(x=>x.id===openSl);openSl=null;show("dossziek");if(u)$("#dTema").value=u.cim;openForm();return;}
+  if(t.id==="slToDosszie"){const u=SL&&SL.ugyek.find(x=>x.id===openSl);dSl=u?u.id:null;openSl=null;show("dossziek");if(u)$("#dTema").value=u.cim;openForm();return;}
   if(t.dataset.view){openDosszie=null;openSl=null;show(t.dataset.view);}
   else if(t.dataset.goto){openDosszie=null;openSl=null;show(t.dataset.goto);}
   else if(t.dataset.dosszie)openDosszieReader(t.dataset.dosszie);
@@ -852,7 +852,7 @@ $("#slK").addEventListener("change",e=>{slst.k=e.target.value;slst.limit=12;rend
 $("#slG").addEventListener("change",e=>{slst.g=e.target.value;slst.limit=12;renderSl();});
 $("#slRend").addEventListener("change",e=>{slst.rend=e.target.value;slst.limit=12;renderSl();});
 $("#newDosszieBtn").addEventListener("click",openForm);
-$("#dCancel").addEventListener("click",()=>{$("#dosszieForm").reset();dHir=null;renderDHir();$("#dForm").hidden=true;});
+$("#dCancel").addEventListener("click",()=>{$("#dosszieForm").reset();dHir=null;dSl=null;renderDHir();$("#dForm").hidden=true;});
 $("#brand").addEventListener("click",e=>{e.preventDefault();openDosszie=null;openSl=null;show("ma");});
 $("#bellBtn").addEventListener("click",openBell);
 $("#q").addEventListener("input",()=>{qSel=-1;renderSearch();});
@@ -863,7 +863,7 @@ $("#q").addEventListener("keydown",e=>{const rows=[...$("#qPop").querySelectorAl
   else if(e.key==="Enter"){const r=rows[qSel>=0?qSel:0];if(r){e.preventDefault();r.click();$("#q").blur();}}});
 $("#hvTheme").addEventListener("click",()=>{const n=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("fvtp-theme",n);}catch(e){}});
 $("#dosszieForm").addEventListener("submit",e=>{e.preventDefault();const t=$("#dTema").value.trim();if(!t)return;
-  fetch("/api/dosszie",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({t,dontes:$("#dDontes").value,kor:$("#dKor").value,hir:dHir||null,storyline:openSl||""})}).then(r=>r.json()).then(j=>{if(j.ok)toast("Dosszié-kérés továbbítva (#"+j.issue+"), a következő frissítéskor készül.");else toast("A kérés helyben rögzítve, továbbítás nem sikerült: "+(j.error||""));}).catch(()=>toast("A kérés helyben rögzítve, továbbítás nem sikerült."));DOSSZIEK.unshift({id:"d-"+Date.now(),kero:ROLES[role].name,date:isoD(TODAY),t,s:$("#dKor").value,st:"elokesz"});renderDosszie();e.target.reset();dHir=null;renderDHir();$("#dForm").hidden=true;toast("A kérés rögzítve. A kész dossziéról értesítést kap.");});
+  fetch("/api/dosszie",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({t,dontes:$("#dDontes").value,kor:$("#dKor").value,hir:dHir||null,storyline:dSl||openSl||""})}).then(r=>r.json()).then(j=>{if(j.ok)toast("Dosszié-kérés továbbítva (#"+j.issue+"), a következő frissítéskor készül.");else toast("A kérés helyben rögzítve, továbbítás nem sikerült: "+(j.error||""));}).catch(()=>toast("A kérés helyben rögzítve, továbbítás nem sikerült."));DOSSZIEK.unshift({id:"d-"+Date.now(),kero:ROLES[role].name,date:isoD(TODAY),t,s:$("#dKor").value,st:"elokesz"});renderDosszie();e.target.reset();dHir=null;dSl=null;renderDHir();$("#dForm").hidden=true;toast("A kérés rögzítve. A kész dossziéról értesítést kap.");});
 
 loadState();if(!subs)subs=defaultSubs(role);
 {const d=defaultSubs(role);for(const k in d)if(!subs[k]||typeof subs[k]!=="object")subs[k]=d[k];}
