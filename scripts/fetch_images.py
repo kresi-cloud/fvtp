@@ -31,3 +31,4 @@ for name, url in IMG.items():
             print('próba', attempt + 1, 'nem sikerült:', name, e); time.sleep(3 + 3 * attempt)
     if not ok:
         print('NEM sikerült:', name)
+# fotók: a workflow tölti
