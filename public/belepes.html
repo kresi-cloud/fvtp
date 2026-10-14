@@ -73,6 +73,11 @@ window.addEventListener('load', async () => {
                   socialButtonsBlockButton: { borderRadius: '8px' }, footer: { display: 'none' }, logoBox: { display: 'none' } }
     }
   };
+  // a Clerk angol hibaüzenete meghívó nélküli regisztrációnál → magyar, teendővel
+  const HU_ERR = { 'New sign-ups are currently restricted.': 'Ezzel a címmel még nincs fiók. Az első belépéshez nyissa meg a meghívó e-mailben kapott linket, és ugyanazzal a címmel (vagy azzal a Google-fiókkal) regisztráljon, amelyre a meghívó érkezett.' };
+  new MutationObserver(() => document.querySelectorAll('#clerk p, #clerk span, #clerk div').forEach(el => {
+    if (el.childElementCount === 0 && HU_ERR[el.textContent.trim()]) el.textContent = HU_ERR[el.textContent.trim()];
+  })).observe(document.getElementById('clerk'), { childList: true, subtree: true, characterData: true });
   if (signup) Clerk.mountSignUp(document.getElementById('clerk'), opts);
   else Clerk.mountSignIn(document.getElementById('clerk'), opts);
 });
