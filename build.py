@@ -129,6 +129,7 @@ function hvAdminInit(){
 # 7) lábléc: képek forrása (CC) – a design nem nevez intézményt
 pass  # a lábléc az artifactból jön (frissítés dátuma + fotók)
 
+html = html.replace('</style>', '.tb-only{display:none!important}\n</style>', 1)
 html = CLAUDE_RE.sub('', html)
 html += '''\n<script>/* nyilvános oldal: üres vagy claude.ai-ra mutató link nem kattintható */
 (function(){const fix=r=>r.querySelectorAll('a[href]').forEach(a=>{const h=a.getAttribute('href')||'';if(h===''||h==='undefined'||/claude\\.ai\\//i.test(h)){a.removeAttribute('href');a.removeAttribute('target');a.classList.add('hv-nolink');}});

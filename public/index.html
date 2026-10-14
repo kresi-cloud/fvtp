@@ -123,7 +123,7 @@ main{padding-block:40px 72px}
 .head-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px}
 .sh{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px;margin-bottom:12px}
 .sh .muted{font-size:14px}
-.lnk{background:none;border:0;padding:0;color:var(--link);font-size:14.5px;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:3px}
+.lnk{background:none;border:0;padding:0;text-align:left;color:var(--link);font-size:14.5px;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:3px}
 .lnk:hover{text-decoration-color:currentColor}
 .empty{color:var(--muted);padding:16px 0;font-size:15px}
 .block + .block{margin-top:56px}
@@ -276,9 +276,17 @@ td.mute{color:var(--muted);font-size:14px}
 .toast.show{opacity:1}
 a.hv-nolink{cursor:default;text-decoration:none;color:inherit}
 
+dialog#rec{max-width:min(640px,calc(100vw - 32px));width:100%;background:var(--surface);color:var(--fg);border:1px solid var(--line-2);border-radius:8px;padding:28px 32px;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+dialog#rec::backdrop{background:rgba(0,0,0,.55)}
+#rec h2{font-size:20px;margin:4px 0 14px}
+#rec .tx{margin-bottom:20px;max-width:64ch}
+#rec dl.kv{grid-template-columns:150px minmax(0,1fr);gap:8px 16px}
+#rec dl.kv div{display:contents}
+#rec .x{position:absolute;top:12px;right:14px}
 footer{border-top:1px solid var(--line);margin-top:24px}
 footer .wrap{padding-block:22px 28px;font-size:13.5px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+.tb-only{display:none!important}
 </style>
 
 <a href="#fotartalom" class="sr-only">Ugrás a tartalomhoz</a>
@@ -458,6 +466,7 @@ footer .wrap{padding-block:22px 28px;font-size:13.5px;color:var(--muted)}
 <footer>
   <div class="wrap tn" id="ftUpd"></div>
 </footer>
+<dialog id="rec" aria-labelledby="recH"><button class="btn sm x" type="button" id="recX">Bezárás</button><div id="recBody"></div></dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -526,6 +535,7 @@ const followed=id=>!!(subs[id]&&subs[id].on);
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),2800);}
 
 /* ---- Navigáció ---- */
+let INIT_HASH="";try{INIT_HASH=decodeURIComponent(location.hash.slice(1));}catch(e){}
 const ALIAS={kezdolap:"ma",briefek:"osszefoglalok",dosszie:"dossziek",feliratkozas:"osszefoglalok"};
 let current="ma";
 function show(view){
@@ -707,7 +717,7 @@ function renderSlReader(){
     ${u.ind?`<p class="lead">${esc(u.ind)}</p>`:""}
     <h2>Döntések időrendben</h2>
     <ol class="steps">${u.steps.map(s=>s.missing?`<li class="missing"><div class="sx">A hivatkozott tétel még nincs a tényadattárban.</div></li>`
-      :`<li><div class="sd"><span>${esc(s.d)}</span><span>${esc(s.ki)}</span>${s.sz?`<span>${esc(s.sz)}</span>`:""}${s.j?`<span title="Forrás">${esc(JLAB[s.j]||s.j)}</span>`:""}</div><div class="st">${esc(s.tr)}</div>${s.tx&&s.tx!==s.tr?`<div class="sx">${esc(s.tx)}${s.e?" "+esc(s.e):""}</div>`:(s.e?`<div class="sx">${esc(s.e)}</div>`:"")}<div class="sf">${esc(s.lap||"")}${s.fh?", "+esc(s.fh):""}${s.id?` <a href="${TB_URL}#${encodeURIComponent(s.id)}" target="_blank" rel="noopener">${esc(s.id)}</a>`:""}</div></li>`).join("")}</ol>
+      :`<li><div class="sd"><span>${esc(s.d)}</span><span>${esc(s.ki)}</span>${s.sz?`<span>${esc(s.sz)}</span>`:""}${s.j?`<span title="Forrás">${esc(JLAB[s.j]||s.j)}</span>`:""}</div><div class="st">${esc(s.tr)}</div>${s.tx&&s.tx!==s.tr?`<div class="sx">${esc(s.tx)}${s.e?" "+esc(s.e):""}</div>`:(s.e?`<div class="sx">${esc(s.e)}</div>`:"")}<div class="sf">${esc(s.lap||"")}${s.fh?", "+esc(s.fh):""}${s.id?` <button class="lnk" style="font-size:13px" data-rec="${esc(s.id)}">${esc(s.id)}</button>`:""}</div></li>`).join("")}</ol>
   </article>
   <aside class="side">
     <div><dl class="kv"><div><dt>Kimenet</dt><dd>${outTxt(u.k)}</dd></div>${u.tm?`<div><dt>Témakör</dt><dd>${esc(u.tm)}</dd></div>`:""}<div><dt>Döntéshozók</dt><dd>${kis.map(esc).join(", ")||"nincs adat"}</dd></div><div><dt>Források</dt><dd>${Object.entries(dist).sort().map(([j,n])=>`${esc(JLAB[j]||j)}: ${n}`).join("<br>")||"nincs adat"}</dd></div></dl></div>
@@ -715,6 +725,19 @@ function renderSlReader(){
   </aside>`;
 }
 
+function findStep(id){if(!SL)return null;for(const u of SL.ugyek){const st=u.steps.find(x=>x.id===id);if(st)return {u,st};}return null;}
+function openRec(id){const f=findStep(id);if(!f)return;const s=f.st,u=f.u;
+  const row=(k,v)=>v?`<div><dt>${k}</dt><dd>${v}</dd></div>`:"";
+  $("#recBody").innerHTML=s.missing?`<p class="m">${esc(id)}</p><h2 id="recH">A tétel még nincs a tényadattárban</h2>`:`
+    <p class="m">${esc(s.lap||"")}${s.d?", "+esc(s.d):""}</p>
+    <h2 id="recH">${esc(s.tr)}</h2>
+    ${s.tx&&s.tx!==s.tr?`<p class="tx">${esc(s.tx)}</p>`:""}
+    <dl class="kv">${row("Döntéshozó",esc(s.ki))}${row("Eredmény",esc(s.e))}${row("Témakör",esc(s.t))}${row("Szám",esc(s.sz))}${row("Forrás",esc(s.lap))}${row("Szerző, közlő",esc(s.sm))}${row("Intézmény",esc(s.in))}${row("Forrásállomány",esc((s.ff||"").split("/").pop()))}${row("Kinyerési blokk",esc(s.fh))}${row("Megbízhatóság",esc(JLAB[s.j]||s.j))}${row("Ügylánc",`<button class="lnk" data-sl="${esc(u.id)}">${esc(u.cim)}</button>`)}${row("Azonosító",esc(s.id))}</dl>
+    <p class="small tb-only" style="margin-top:18px"><a href="${TB_URL}#${encodeURIComponent(s.id)}" target="_blank" rel="noopener">Megnyitás a tényadattárban</a></p>`;
+  const d=$("#rec");if(!d.open)d.showModal();}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-rec]");if(t){e.preventDefault();openRec(t.dataset.rec);return;}
+  if(e.target.id==="recX"||e.target===$("#rec"))$("#rec").close();
+  if(e.target.closest("#rec [data-sl]"))$("#rec").close();});
 /* ---- Adatok ---- */
 async function loadBriefek(){
   try{const r=await fetch("data/briefek.json",{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);BF=await r.json();
@@ -737,6 +760,7 @@ async function loadSl(){
     const gs=[...new Set(SL.ugyek.map(u=>u.g))];$("#slG").innerHTML='<option value="">Minden gyűjtemény</option>'+gs.map(g=>`<option value="${esc(g)}">${esc(gLabel(g))}</option>`).join("");
     $("#slMeta").textContent=`${SL.meta.n_ugyek} ügy, ${SL.meta.n_lepes} döntés`;
     renderSl();
+    {const h=INIT_HASH;const f=h&&findStep(h);if(f){openSlReader(f.u.id);openRec(h);}}
   }catch(e){$("#slMeta").textContent="";$("#slList").innerHTML=`<div class="empty">Az ügyláncok most nem tölthetők be.</div>`;}
 }
 
