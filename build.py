@@ -58,26 +58,25 @@ rep('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtr
 
 # 3) kilépés gomb (Clerk signOut) – a téma-kapcsoló és a rejtett szerep-legördülő már az artifactban van
 rep('<select class="role" id="roleSel" hidden aria-label="Szerepkör">',
-    '<button class="tb-btn hv-logout" type="button" id="hvLogout" title="Kilépés">Kilépés</button>\n        <select class="role" id="roleSel" hidden aria-label="Szerepkör">', 'logout')
+    '<button class="tb-btn hv-logout" type="button" id="hvLogout">Kilépés</button>\n        <select class="role" id="roleSel" hidden aria-label="Szerepkör">', 'logout')
 
 # 4b) Meghívások menü + nézet (csak adminnak jelenik meg; a tartalmat a /api/invitations adja)
-rep('<button role="tab" data-view="feliratkozas" aria-selected="false">Feliratkozás</button>',
-    '<button role="tab" data-view="feliratkozas" aria-selected="false">Feliratkozás</button>\n      <button role="tab" data-view="meghivas" aria-selected="false" id="hvAdminTab" hidden>Meghívások</button>', 'admin-tab')
-rep('<section class="view" id="v-feliratkozas" hidden>', '''<section class="view" id="v-meghivas" hidden>
-  <div class="page-head"><div><div class="eyebrow">Adminisztráció</div><h1>Meghívások</h1></div></div>
-  <div class="cols"><div class="col-main">
-    <div class="card"><h3>Új meghívó</h3>
-      <form id="hvInvForm" class="form" style="display:grid;grid-template-columns:minmax(0,1fr) 180px auto auto;gap:10px;align-items:end;margin-top:12px">
-        <label>E-mail<input type="email" id="hvInvEmail" required placeholder="nev@pte.hu"></label>
-        <label>Nézet<select id="hvInvRole"><option value="dekan">Vezető</option><option value="dh_tud">Tudományos helyettes</option><option value="dh_okt">Oktatási helyettes</option><option value="intezet">Egységvezető</option><option value="hivatal">Hivatalvezető</option></select></label>
-        <label style="display:flex;gap:6px;align-items:center;padding-bottom:10px"><input type="checkbox" id="hvInvAdmin" style="width:auto"> admin</label>
-        <button class="btn primary" type="submit">Meghívó küldése</button>
-      </form><p class="hv-msg" id="hvInvMsg" style="margin-top:10px;color:var(--muted-fg)"></p></div>
-    <div class="sec"><div class="sec-head"><h2>Függő meghívók</h2><span id="hvInvN"></span></div><div class="rows" id="hvInvList"></div></div>
-    <div class="sec"><div class="sec-head"><h2>Tagok</h2><span id="hvUsrN"></span></div><div class="rows" id="hvUsrList"></div></div>
-  </div><aside class="rail"><div class="card"><h3>Hogyan működik</h3><p style="color:var(--muted-fg);margin-top:8px">Csak meghívott e-mail-cím tud belépni (Google-fiókkal vagy e-mail kóddal). A meghívó 30 napig érvényes; visszavonás után a cím nem léphet be. Tag eltávolítása azonnali.</p></div></aside></div>
+rep('<button role="tab" data-view="dossziek" aria-selected="false">Dossziék</button>',
+    '<button role="tab" data-view="dossziek" aria-selected="false">Dossziék</button>\n      <button role="tab" data-view="meghivas" aria-selected="false" id="hvAdminTab" hidden>Meghívások</button>', 'admin-tab')
+rep('\n</main>', '''
+<section class="view" id="v-meghivas" hidden>
+  <div class="head"><h1>Meghívások</h1><p>Csak meghívott cím tud belépni, Google-fiókkal vagy e-mailben kapott kóddal. A meghívó 30 napig érvényes.</p></div>
+  <form id="hvInvForm" class="form" style="max-width:none;display:grid;grid-template-columns:minmax(0,1fr) 200px auto auto;gap:12px;align-items:end">
+    <label>E-mail-cím<input type="email" id="hvInvEmail" required placeholder="nev@pelda.hu"></label>
+    <label>Nézet<select id="hvInvRole"><option value="dekan">Vezető</option><option value="dh_tud">Tudományos helyettes</option><option value="dh_okt">Oktatási helyettes</option><option value="intezet">Egységvezető</option><option value="hivatal">Hivatalvezető</option></select></label>
+    <label style="display:flex;gap:8px;align-items:center;padding-bottom:10px;font-weight:400"><input type="checkbox" id="hvInvAdmin" style="width:auto"> Adminisztrátor</label>
+    <button class="btn primary" type="submit">Meghívó küldése</button>
+  </form>
+  <p id="hvInvMsg" class="muted" style="margin-top:10px;min-height:1.5em"></p>
+  <div class="block" style="margin-top:32px"><div class="sh"><h2>Függő meghívók</h2><span class="muted" id="hvInvN"></span></div><div class="list" id="hvInvList"></div></div>
+  <div class="block"><div class="sh"><h2>Tagok</h2><span class="muted" id="hvUsrN"></span></div><div class="list" id="hvUsrList"></div></div>
 </section>
-<section class="view" id="v-feliratkozas" hidden>''', 'admin-view')
+</main>''', 'admin-view')
 
 # 4c) Dosszié-kérés → /api/dosszie (GitHub issue), helyi „készül” sor marad
 rep('''$("#dosszieForm").addEventListener("submit",e=>{e.preventDefault();const t=$("#dTema").value.trim();if(!t)return;''',
@@ -106,10 +105,10 @@ function hvAdminInit(){
   const msg=t=>{document.getElementById("hvInvMsg").textContent=t;};
   async function api(method,qs,body){const r=await fetch("/api/invitations"+(qs||""),{method,headers:{"Content-Type":"application/json"},body:body?JSON.stringify(body):undefined});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||r.status);return j;}
   async function load(){try{const d=await api("GET");
-    document.getElementById("hvInvN").textContent=d.invitations.length+" függő";
-    document.getElementById("hvInvList").innerHTML=d.invitations.length?d.invitations.map(i=>`<div class="row"><span class="pill elokesz">meghívva</span><span><span class="t">${E(i.email)}</span><span class="s">${E(RN[i.role]||i.role)}${i.admin?" · admin":""} · ${new Date(i.created).toLocaleDateString("hu-HU")}</span></span><button class="btn sm" data-hv-revoke="${E(i.id)}">Visszavonás</button></div>`).join(""):'<div class="empty">Nincs függő meghívó.</div>';
-    document.getElementById("hvUsrN").textContent=d.users.length+" tag";
-    document.getElementById("hvUsrList").innerHTML=d.users.map(u=>`<div class="row"><span class="pill elo">tag</span><span><span class="t">${E(u.name||u.email)}</span><span class="s">${E(u.email)} · ${E(RN[u.role]||u.role||"nézet nincs beállítva")}${u.admin?" · admin":""}${u.lastSignIn?" · utoljára: "+new Date(u.lastSignIn).toLocaleDateString("hu-HU"):""}</span></span>${u.email===d.me?"":`<button class="btn sm" data-hv-user="${E(u.id)}">Eltávolítás</button>`}</div>`).join("");
+    document.getElementById("hvInvN").textContent=(d.invitations.length||"");
+    document.getElementById("hvInvList").innerHTML=d.invitations.length?d.invitations.map(i=>`<div class="item"><span class="t">${E(i.email)}</span><span class="r"><button class="btn sm" data-hv-revoke="${E(i.id)}">Visszavonás</button></span><span class="s">${E(RN[i.role]||i.role)}${i.admin?", adminisztrátor":""}. Meghívva: ${new Date(i.created).toLocaleDateString("hu-HU")}</span></div>`).join(""):'<div class="empty">Nincs függő meghívó.</div>';
+    document.getElementById("hvUsrN").textContent=d.users.length;
+    document.getElementById("hvUsrList").innerHTML=d.users.map(u=>`<div class="item"><span class="t">${E(u.name||u.email)}</span><span class="r">${u.email===d.me?"":`<button class="btn sm" data-hv-user="${E(u.id)}">Eltávolítás</button>`}</span><span class="s">${E(u.email)}, ${E(RN[u.role]||u.role||"nézet nincs beállítva")}${u.admin?", adminisztrátor":""}${u.lastSignIn?". Utoljára belépett: "+new Date(u.lastSignIn).toLocaleDateString("hu-HU"):""}</span></div>`).join("");
   }catch(e){msg("Hiba: "+e.message);}}
   document.getElementById("hvInvForm").addEventListener("submit",async e=>{e.preventDefault();msg("küldés…");try{await api("POST","",{email:document.getElementById("hvInvEmail").value,role:document.getElementById("hvInvRole").value,admin:document.getElementById("hvInvAdmin").checked});msg("Meghívó elküldve.");e.target.reset();load();}catch(er){msg("Hiba: "+er.message);}});
   document.getElementById("v-meghivas").addEventListener("click",async e=>{const b=e.target.closest("[data-hv-revoke],[data-hv-user]");if(!b)return;
@@ -121,7 +120,7 @@ function hvAdminInit(){
 <script>''', 'clerk-boot')
 
 # 7) lábléc: képek forrása (CC) – a design nem nevez intézményt
-html += '''\n<footer class="hv-foot wrap"><span>Napi frissítés · utolsó build: ''' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC') + '''</span></footer>\n'''
+pass  # a lábléc az artifactból jön (frissítés dátuma + fotók)
 
 html = CLAUDE_RE.sub('', html)
 html += '''\n<script>/* nyilvános oldal: üres vagy claude.ai-ra mutató link nem kattintható */

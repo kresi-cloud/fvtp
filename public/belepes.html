@@ -13,37 +13,30 @@ html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--fg);font-family:"Satoshi",ui-sans-serif,system-ui,sans-serif;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(380px,.85fr);min-height:100vh}
 .hero{color:#fff;position:relative;isolation:isolate;overflow:hidden;padding:clamp(28px,5vw,64px);display:flex;flex-direction:column;justify-content:space-between}
 .hero::before{content:"";position:absolute;inset:0;z-index:-2;background:#2d2849 url("/img/cathedral.jpg") center/cover no-repeat}
-.hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(9,14,20,0) 40%,rgba(9,14,20,.4) 100%)}
-.hero > div:last-child{background:rgba(9,14,20,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:18px;padding:22px 26px;max-width:620px}
 .mark{width:44px;height:44px;border-radius:12px;background:var(--primary);display:grid;place-items:center}
 .hero h1{font-size:clamp(34px,4.6vw,60px);font-weight:400;letter-spacing:-.02em;line-height:1.05;margin:0 0 16px;max-width:14ch}
 .hero p{color:#d6d3e6;font-size:17px;max-width:46ch;margin:0;line-height:1.6}
 .hero .rating{margin-top:28px;color:#aa99ff;font-size:14px}
 .panel{display:grid;place-items:center;padding:clamp(24px,4vw,56px)}
 .box{width:min(420px,100%)}
-h2{font-weight:400;font-size:30px;letter-spacing:-.015em;margin:0 0 6px}
+h2{font-weight:500;font-size:30px;letter-spacing:-.015em;margin:0 0 6px}
+.name{font-weight:700;margin:0 0 28px}
 .sub{color:var(--muted);margin:0 0 22px;line-height:1.5}
 #clerk{min-height:320px}
 .foot{margin-top:22px;color:var(--muted);font-size:12.5px;line-height:1.5}
 .foot a{color:var(--lilac)}
-@media (max-width:880px){body{grid-template-columns:1fr}.hero{min-height:40vh}}
+@media (max-width:880px){body{grid-template-columns:1fr}.hero{min-height:26vh}}
 </style>
 </head>
 <body>
-<section class="hero">
-  <div class="mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h14M9 16h10M9 11h6"/></svg></div>
-  <div>
-    <h1>Ami ma a vezetői asztalra tartozik.</h1>
-    <p>Agentek által naponta frissített összefoglalók, határidők és dossziék – egyetlen felületen, szerepkörre szabva.</p>
-    <div class="rating">Napi, heti és havi ritmusban · belső használatra</div>
-  </div>
-</section>
+<section class="hero" aria-hidden="true"></section>
 <section class="panel">
   <div class="box">
+    <p class="name">Felsőoktatási Vezetői Tájékoztató Portál</p>
     <h2>Belépés</h2>
-    <p class="sub">Google-fiókkal vagy e-mailben kapott kóddal. A portál csak meghívott vezetők számára elérhető – meghívót az oldal alján megadott címen kérhet.</p>
+    <p class="sub">Naponta frissülő összefoglalók, határidők és dossziék. Belépni meghívóval lehet, Google-fiókkal vagy e-mailben kapott kóddal.</p>
     <div id="clerk"></div>
-    <p class="foot">A belépés ezen az eszközön 7 napig érvényes. Problémák esetén: <a href="mailto:gergely.kresak@gmail.com">gergely.kresak@gmail.com</a></p>
+    <p class="foot">Meghívót és segítséget itt kérhet: <a href="mailto:gergely.kresak@gmail.com">gergely.kresak@gmail.com</a></p>
   </div>
 </section>
 <script async crossorigin="anonymous"
@@ -75,10 +68,10 @@ window.addEventListener('load', async () => {
     signInUrl: '/belepes', signUpUrl: '/belepes?mode=signup',
     appearance: {
       variables: { colorPrimary: '#6000ff', colorBackground: light?'#ffffff':'#10161f', colorText: light?'#0b0b12':'#f4f4f7', colorTextSecondary: light?'#5b5b66':'#a1a1aa',
-                   colorInputBackground: light?'#f8f8f8':'#0c1118', colorInputText: light?'#0b0b12':'#f4f4f7', colorNeutral: light?'#0b0b12':'#ffffff', borderRadius: '14px',
+                   colorInputBackground: light?'#f8f8f8':'#0c1118', colorInputText: light?'#0b0b12':'#f4f4f7', colorNeutral: light?'#0b0b12':'#ffffff', borderRadius: '8px',
                    fontFamily: 'Satoshi, ui-sans-serif, system-ui, sans-serif', fontSize: '15px' },
-      elements: { card: { boxShadow: 'none', border: '1px solid var(--line)' }, formButtonPrimary: { borderRadius: '999px', fontSize: '15px', textTransform: 'none' },
-                  socialButtonsBlockButton: { borderRadius: '999px' }, footer: { display: 'none' }, logoBox: { display: 'none' } }
+      elements: { card: { boxShadow: 'none', border: '1px solid var(--line)' }, formButtonPrimary: { borderRadius: '8px', fontSize: '15px', textTransform: 'none' },
+                  socialButtonsBlockButton: { borderRadius: '8px' }, footer: { display: 'none' }, logoBox: { display: 'none' } }
     }
   };
   if (signup) Clerk.mountSignUp(document.getElementById('clerk'), opts);
