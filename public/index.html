@@ -5,7 +5,7 @@
 <script>window.HV_ADMIN_EMAILS=["gergely.kresak@gmail.com"];
 /* belépés után az első betöltéskor a Clerk-süti még frissülhet: az adatlekérés megvárja, és hiba esetén újrapróbál */
 window.HV_READY=new Promise(r=>{window.HV_READY_RESOLVE=r;setTimeout(r,8000);});
-(function(){const of=window.fetch.bind(window);window.fetch=async function(u,o){const s=String(u&&u.url||u);if(!/^(\/)?data\//.test(s))return of(u,o);
+(function(){const of=window.fetch.bind(window);window.fetch=async function(u,o){const s=String(u&&u.url||u);if(!(s.startsWith("data/")||s.startsWith("/data/")))return of(u,o);
   await window.HV_READY;let last;for(let i=0;i<4;i++){try{const r=await of(u,o);const ct=r.headers.get("content-type")||"";if(r.ok&&/json/.test(ct))return r;last=r;}catch(e){last=e;}
     try{if(window.Clerk&&Clerk.session)await Clerk.session.getToken({skipCache:true});}catch(e){}await new Promise(z=>setTimeout(z,600*(i+1)));}
   if(last instanceof Response)return last;throw last;};})();
