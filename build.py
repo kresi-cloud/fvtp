@@ -50,36 +50,15 @@ def rep(old, new, what, count=1):
         warn.append(what); return
     html = html.replace(old, new, count)
 
-# 1) betűtípus: Satoshi (Fontshare) a Google-font helyett
-rep('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap">',
+# 1) betűtípus: a honlapon Satoshi (Fontshare); az artifact Figtree-t tölt (Google Fonts)
+rep('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&display=swap">',
     '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">\n'
     '<link rel="preconnect" href="https://api.fontshare.com"><link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap">\n'
     '<link rel="icon" href="/favicon.svg" type="image/svg+xml">', 'font-link')
 
-# 2) téma-CSS a saját stíluslap UTÁN (felülírja a tokeneket)
-rep('</style>', '</style>\n<link rel="stylesheet" href="/theme.css">', 'theme-link')
-
-# 3) szerep-legördülő ki (a JS továbbra is hivatkozik rá, ezért csak rejtjük) + kilépés gomb (Clerk signOut)
-rep('<select class="role" id="roleSel" aria-label="Demó: szerepkör váltása">',
-    '<button class="tb-btn hv-theme" type="button" id="hvTheme" aria-label="Világos / sötét téma" title="Világos / sötét téma"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4m11.4-11.4 1.4-1.4"/></svg></button>\n        <button class="tb-btn hv-logout" type="button" id="hvLogout" title="Kilépés">Kilépés</button>\n        <select class="role" id="roleSel" hidden aria-label="Szerepkör">', 'roleSel')
-
-# 4) csengő: a rendszerben lekért, elkészült elemzések (háttérelemzések + kész dossziék)
-rep('const n=ALERTS.filter(a=>a.roles.includes(role)).length;$("#bellN").textContent=n;$("#bellN").hidden=n===0;',
-    'const n=((BF&&BF.analyses)||[]).length+DOSSZIEK.filter(d=>d.st==="elo").length;$("#bellN").textContent=n;$("#bellN").hidden=n===0;', 'bell-count')
-rep('$("#bellBtn").addEventListener("click",()=>show("kezdolap"));',
-    r'''$("#bellBtn").addEventListener("click",()=>{
-  let p=$("#hvBell");if(p){p.remove();return;}
-  const an=((BF&&BF.analyses)||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
-  const ds=DOSSZIEK.filter(d=>d.st==="elo");
-  p=document.createElement("div");p.id="hvBell";p.className="hv-bell";
-  p.innerHTML=`<div class="hv-bell-h"><b>Elkészült elemzések</b><span>${an.length+ds.length} tétel</span></div>
-    ${ds.length?`<div class="hv-bell-sec">Dossziék</div>`+ds.map(d=>`<button class="hv-bell-row" data-hv-dosszie="${d.id}"><span>${esc(d.t)}</span><small>${fmtS(d.date)}</small></button>`).join(""):""}
-    ${an.length?`<div class="hv-bell-sec">Háttérelemzések</div>`+an.map(x=>`<a class="hv-bell-row" href="${esc(x.url)}" target="_blank" rel="noopener"><span>${esc(x.title)}</span><small>${x.date?fmtS(x.date):""}</small></a>`).join(""):""}
-    ${!an.length&&!ds.length?'<div class="empty">Még nincs elkészült elemzés.</div>':""}`;
-  document.body.appendChild(p);
-  p.addEventListener("click",e=>{const b=e.target.closest("[data-hv-dosszie]");if(b){openSl=null;openDosszie=b.dataset.hvDosszie;show("dosszie");renderDosszieReader();p.remove();}});
-  setTimeout(()=>document.addEventListener("click",function h(e){if(!p.contains(e.target)&&!e.target.closest("#bellBtn")){p.remove();document.removeEventListener("click",h);}}),0);
-});''', 'bell-click')
+# 3) kilépés gomb (Clerk signOut) – a téma-kapcsoló és a rejtett szerep-legördülő már az artifactban van
+rep('<select class="role" id="roleSel" hidden aria-label="Szerepkör">',
+    '<button class="tb-btn hv-logout" type="button" id="hvLogout" title="Kilépés">Kilépés</button>\n        <select class="role" id="roleSel" hidden aria-label="Szerepkör">', 'logout')
 
 # 4b) Meghívások menü + nézet (csak adminnak jelenik meg; a tartalmat a /api/invitations adja)
 rep('<button role="tab" data-view="feliratkozas" aria-selected="false">Feliratkozás</button>',
@@ -112,8 +91,6 @@ rep('if(!db){st.textContent="adatbázis nem elérhető ebben a nézetben";return
 
 # 6) Clerk: szerep a felhasználó publicMetadata.role mezőjéből (a meghívón állítható), kilépés gomb
 rep('<script>', '''<script>window.HV_ADMIN_EMAILS=''' + json.dumps(ADMINS) + ''';
-(function(){let t="dark";try{t=localStorage.getItem("fvtp-theme")||"dark";}catch(e){}document.documentElement.setAttribute("data-theme",t);
-document.addEventListener("DOMContentLoaded",()=>{const b=document.getElementById("hvTheme");if(!b)return;b.addEventListener("click",()=>{const n=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("fvtp-theme",n);}catch(e){}});});})();
 </script>\n<script async crossorigin="anonymous" data-clerk-publishable-key="''' + PK + '''" src="https://''' + FA + '''/npm/@clerk/clerk-js@5/dist/clerk.browser.js"></script>
 <script>
 window.addEventListener("load",async()=>{try{await Clerk.load();if(!Clerk.user){location.replace("/belepes.html");return;}
@@ -144,7 +121,7 @@ function hvAdminInit(){
 <script>''', 'clerk-boot')
 
 # 7) lábléc: képek forrása (CC) – a design nem nevez intézményt
-html += '''\n<footer class="hv-foot wrap"><span>Napi frissítés · utolsó build: ''' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC') + '''</span><span>Fotók: Harta Viktor, Ruprech Judit, Mrszantogabor (CC BY-SA 4.0), Molnár Bence (CC BY-SA 3.0), takacsja (CC BY-SA 2.5) – Wikimedia Commons</span></footer>\n'''
+html += '''\n<footer class="hv-foot wrap"><span>Napi frissítés · utolsó build: ''' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC') + '''</span></footer>\n'''
 
 html = CLAUDE_RE.sub('', html)
 html += '''\n<script>/* nyilvános oldal: üres vagy claude.ai-ra mutató link nem kattintható */

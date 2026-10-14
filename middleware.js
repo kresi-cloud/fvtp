@@ -2,7 +2,7 @@
 // Beállítás: CLERK_SECRET_KEY és NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY környezeti változók a Vercelen.
 import { createClerkClient } from '@clerk/backend';
 
-export const config = { matcher: ['/((?!belepes|theme\\.css|favicon\\.svg|img/|_vercel).*)'] };
+export const config = { matcher: ['/((?!belepes|favicon\\.svg|img/|_vercel).*)'] };
 
 export default async function middleware(req) {
   const secretKey = process.env.CLERK_SECRET_KEY;
