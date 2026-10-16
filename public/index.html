@@ -275,6 +275,12 @@ td.mute{color:var(--muted);font-size:14px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14.5px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:80;max-width:calc(100% - 32px)}
 .toast.show{opacity:1}
 a.hv-nolink{cursor:default;text-decoration:none;color:inherit}
+.copyrow{display:flex;justify-content:flex-end;margin:0 0 10px}
+.copyrow.end{margin:28px 0 0}
+.copybtn{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border:1px solid var(--line-2);border-radius:8px;background:transparent;color:var(--muted);font-size:14px}
+.copybtn:hover{color:var(--fg);border-color:var(--fg)}
+.copybtn svg{width:16px;height:16px}
+.copybtn.ok{color:var(--ok);border-color:var(--ok)}
 
 dialog#rec{max-width:min(640px,calc(100vw - 32px));width:100%;background:var(--surface);color:var(--fg);border:1px solid var(--line-2);border-radius:8px;padding:28px 32px;box-shadow:0 24px 70px rgba(0,0,0,.45)}
 dialog#rec::backdrop{background:rgba(0,0,0,.55)}
@@ -649,18 +655,36 @@ function renderDosszieReader(){
   const d=DOSSZIEK.find(x=>x.id===openDosszie);if(!d||d.st!=="elo")return;
   $("#dosszieHome").hidden=true;$("#slReaderWrap").hidden=true;$("#dosszieReaderWrap").hidden=false;
   const others=DOSSZIEK.filter(x=>x.st==="elo"&&x.id!==d.id);
+  const cb=pos=>`<div class="copyrow${pos?" end":""}"><button type="button" class="copybtn" data-copydosszie="${esc(d.id)}" aria-label="A dosszié szövegének másolása a vágólapra" title="Szöveg másolása">${COPY_SVG}<span>Másolás</span></button></div>`;
   $("#dosszieReader").innerHTML=`<article class="doc">
+    ${cb(0)}
     <p class="m">Dosszié, ${fmt(d.date)}${d.kero?" Kérte: "+esc(d.kero):""}</p>
     <h1>${esc(d.t)}</h1>
     <p class="lead">${esc(d.lead||"")}</p>
     ${(d.sections||[]).map(s=>`<h2>${esc(s.h)}</h2>${(s.p||[]).map(t=>`<p>${esc(t)}</p>`).join("")}${s.items&&s.items.length?`<ul>${s.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>`:""}`).join("")}
     ${d.sources&&d.sources.length?`<h2>Források</h2><ul>${d.sources.map(s=>`<li><a ${ext(s[1])}>${esc(s[0])}</a></li>`).join("")}</ul>`:""}
+    ${cb(1)}
   </article>
   <aside class="side">
     ${d.dontes?`<div><h2>Milyen döntéshez</h2><p>${esc(d.dontes)}</p></div>`:""}
     ${others.length?`<div><h2>Más dossziék</h2><div class="issues">${others.map(x=>`<button data-dosszie="${esc(x.id)}"><span>${esc(x.t)}</span><small>${fmtS(x.date)}</small></button>`).join("")}</div></div>`:""}
   </aside>`;
 }
+const COPY_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+function dosszieText(d){
+  const L=[d.t,"Dosszié, "+fmt(d.date)+(d.kero?" Kérte: "+d.kero:""),""];
+  if(d.lead)L.push(d.lead,"");
+  for(const s of d.sections||[]){L.push(s.h);for(const t of s.p||[])L.push(t);for(const i of s.items||[])L.push("– "+i);L.push("");}
+  if(d.sources&&d.sources.length){L.push("Források");for(const s of d.sources)L.push("– "+s[0]+(s[1]&&/^https?:/i.test(s[1])?": "+s[1]:""));}
+  return L.join("\n").replace(/\n{3,}/g,"\n\n").trim()+"\n";
+}
+async function copyText(t){
+  try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(t);return true;}}catch(e){}
+  try{const ta=document.createElement("textarea");ta.value=t;ta.setAttribute("readonly","");ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();const ok=document.execCommand("copy");ta.remove();return ok;}catch(e){return false;}
+}
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-copydosszie]");if(!b)return;const d=DOSSZIEK.find(x=>x.id===b.dataset.copydosszie);if(!d)return;
+  const ok=await copyText(dosszieText(d));toast(ok?"A dosszié szövege a vágólapon.":"A másolás nem sikerült; jelölje ki a szöveget kézzel.");
+  if(ok){$$("[data-copydosszie]").forEach(x=>{x.classList.add("ok");x.querySelector("span").textContent="Másolva";});setTimeout(()=>$$("[data-copydosszie]").forEach(x=>{x.classList.remove("ok");x.querySelector("span").textContent="Másolás";}),2000);}});
 function renderAnalyses(){
   const list=(BF&&BF.analyses||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   $("#anList").innerHTML=list.length?list.map(a=>`<a class="item" ${ext(a.url)}><span class="t">${esc(a.title)}</span><span class="r">${a.date?fmtS(a.date):""}</span>${a.lead?`<span class="s clamp">${esc(a.lead)}</span>`:""}</a>`).join("")
