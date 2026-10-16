@@ -519,7 +519,7 @@ function stamp(g){const p=n=>String(n).padStart(2,"0");return g.getFullYear()+".
 function genDate(){const s=BF&&BF.meta&&BF.meta.gen;if(!s)return null;let g=new Date(s);if(isNaN(g))g=new Date(s.replace(/Z$/,":00Z"));return isNaN(g)?null:g;}
 function renderFoot(){const g=genDate();$("#ftUpd").textContent="Verzió "+APP_VERSION+(g?". Utolsó frissítés: "+stamp(g):"");}
 const TB_URL="";
-const gLabel=g=>({"aok_pte_tenyadatbazis/ugyek.csv":"Kari és egyetemi lapok","rektori_atadas_atvetel_2026/szabalyzat_lancok.csv":"Szabályzatok (rektori átadás, 2026)","rektori_atadas_atvetel_2026/ugyek.csv":"Ügyek (rektori átadás, 2026)"})[g]||"Egyéb";
+const gLabel=g=>({"aok_pte_tenyadatbazis/ugyek.csv":"Kari és egyetemi lapok","rektori_atadas_atvetel_2026/szabalyzat_lancok.csv":"Szabályzatok (rektori átadás, 2026)","rektori_atadas_atvetel_2026/ugyek.csv":"Ügyek (rektori átadás, 2026)","tenyhalo_rendszermag/temak.json":"Tematikus ügyek (tényháló: Szenátus, RVE, fenntartó, kari tanácsok)"})[g]||"Egyéb";
 const outTxt=k=>`<span class="out ${esc(k)}">${esc(KIM[k]||k||"")}</span>`;
 
 let DEADLINES=[], ALERTS=[];
