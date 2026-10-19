@@ -430,7 +430,7 @@ footer .wrap{padding-block:22px 28px;font-size:13.5px;color:var(--muted)}
     </div>
     <div class="block" id="slSec">
       <div class="sh"><h2>Ügyláncok</h2><span class="muted" id="slMeta"></span></div>
-      <p class="muted" style="margin-bottom:14px;max-width:64ch">Egy-egy ügy testületi döntései időrendben, a tényadattárból.</p>
+      <p class="muted" style="margin-bottom:14px;max-width:64ch">Egy-egy ügy testületi döntései időrendben, a tényadattárból és a tényháló rendszermagból (PTE, DE, SZTE, JATE).</p>
       <div class="combo">
         <input type="search" id="slQ" placeholder="Ügy keresése" aria-label="Ügylánc keresése" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="slDrop" aria-autocomplete="list">
         <ul id="slDrop" role="listbox" hidden></ul>
@@ -525,7 +525,7 @@ function stamp(g){const p=n=>String(n).padStart(2,"0");return g.getFullYear()+".
 function genDate(){const s=BF&&BF.meta&&BF.meta.gen;if(!s)return null;let g=new Date(s);if(isNaN(g))g=new Date(s.replace(/Z$/,":00Z"));return isNaN(g)?null:g;}
 function renderFoot(){const g=genDate();$("#ftUpd").textContent="Verzió "+APP_VERSION+(g?". Utolsó frissítés: "+stamp(g):"");}
 const TB_URL="";
-const gLabel=g=>({"aok_pte_tenyadatbazis/ugyek.csv":"Kari és egyetemi lapok","rektori_atadas_atvetel_2026/szabalyzat_lancok.csv":"Szabályzatok (rektori átadás, 2026)","rektori_atadas_atvetel_2026/ugyek.csv":"Ügyek (rektori átadás, 2026)","tenyhalo_rendszermag/temak.json":"Tematikus ügyek (tényháló: Szenátus, RVE, fenntartó, kari tanácsok)"})[g]||"Egyéb";
+const gLabel=g=>({"aok_pte_tenyadatbazis/ugyek.csv":"Kari és egyetemi lapok","rektori_atadas_atvetel_2026/szabalyzat_lancok.csv":"Szabályzatok (rektori átadás, 2026)","rektori_atadas_atvetel_2026/ugyek.csv":"Ügyek (rektori átadás, 2026)"})[g]||(String(g||"").startsWith("tenyhalo_rendszermag/")?"Tényháló: "+({PTE:"PTE (Szenátus, RVE, fenntartó, kari tanácsok)",DE:"Debreceni Egyetem (Szenátus, Egyetemi Tanács)",SZTE:"Szegedi Tudományegyetem (Szenátus, Egyetemi Tanács)",JATE:"JATE Egyetemi Tanács (1985–1996)",SE:"Semmelweis Egyetem"}[String(g).split("#")[1]||"PTE"]||String(g).split("#")[1]):"Egyéb");
 const outTxt=k=>`<span class="out ${esc(k)}">${esc(KIM[k]||k||"")}</span>`;
 
 let DEADLINES=[], ALERTS=[];
